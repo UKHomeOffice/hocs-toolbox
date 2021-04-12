@@ -4,7 +4,7 @@ export VALID_NAMESPACES=("hocs-gamma" "hocs-delta" "hocs-qax")
 
 current=$(kubectl config current-context)
 if [[ ${VALID_NAMESPACES[*]} =~ "$current" ]] ; then
-  echo "Unauthorised Namespace" >&2
+  echo "Unauthorised namespace: you can't scale ${current} with this script" >&2
   exit 1
 fi
 
@@ -48,4 +48,3 @@ else
   kubectl scale --replicas=1 deployment/hocs-frontend
   kubectl scale --replicas=1 deployment/hocs-management-ui
 fi
-
