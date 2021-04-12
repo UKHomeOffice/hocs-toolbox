@@ -1,125 +1,125 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: hocs-toolbox
-  labels:
-    version: {{.VERSION}}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: hocs-toolbox
-  template:
-    metadata:
-      labels:
-        name: hocs-toolbox
-        version: {{.VERSION}}
-        role: hocs-backend
-    spec:
-      imagePullSecrets:
-      - name: registry-credentials
-      containers:
-        - name: hocs-toolbox-query
-          image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
-          imagePullPolicy: Always
-          securityContext:
-            runAsNonRoot: true
-            capabilities:
-              drop:
-               - SETUID
-               - SETGID
-          env:
-            - name: MODE
-              value: "query"
-            - name: HOCS_DB_HOSTNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: endpoint
-            - name: HOCS_DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: port
-            - name: HOCS_DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: db_name
-            - name: HOCS_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: username
-            - name: HOCS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: password
-            - name: HOCS_INFO_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: info_username
-            - name: HOCS_INFO_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: info_password
-            - name: HOCS_DOCS_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-docs
-                  key: rds_user
-            - name: HOCS_DOCS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-docs
-                  key: rds_password
-            - name: HOCS_CASEWORK_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-casework
-                  key: rds_user
-            - name: HOCS_CASEWORK_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-casework
-                  key: rds_password
-            - name: HOCS_WORKFLOW_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-workflow
-                  key: rds_user
-            - name: HOCS_WORKFLOW_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-workflow
-                  key: rds_password
-            - name: HOCS_AUDIT_DB_HOSTNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds-audit
-                  key: endpoint
-            - name: HOCS_AUDIT_DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds-audit
-                  key: db_name
-            - name: HOCS_AUDIT_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-audit
-                  key: rds_user
-            - name: HOCS_AUDIT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-audit
-                  key: rds_password
-          resources:
-            limits:
-              memory: "200Mi"
-              cpu: 400m
-            requests:
-              memory: "50Mi"
-              cpu: 100m
+---
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: docker-build
+    pull: if-not-exists
+    image: docker:17.09.1
+    commands:
+      - docker build -t hocs-toolbox .
+    environment:
+      DOCKER_HOST: tcp://172.17.0.1:2375
+    when:
+      branch:
+        - master
+        - refs/tags/*
+      event:
+        - push
+        - tag
+
+  - name: install-docker-image
+    pull: if-not-exists
+    image: docker:17.09.1
+    commands:
+      - docker login -u=hocs-bot -p=$${DOCKER_PASSWORD} docker.digital.homeoffice.gov.uk
+      - docker tag hocs-toolbox docker.digital.homeoffice.gov.uk/hocs-toolbox:build-$${DRONE_BUILD_NUMBER}
+      - docker tag hocs-toolbox docker.digital.homeoffice.gov.uk/hocs-toolbox:latest
+      - docker push docker.digital.homeoffice.gov.uk/hocs-toolbox:build-$${DRONE_BUILD_NUMBER}
+      - docker push docker.digital.homeoffice.gov.uk/hocs-toolbox:latest
+    environment:
+      DOCKER_HOST: tcp://172.17.0.1:2375
+      DOCKER_PASSWORD:
+        from_secret: docker_password
+    when:
+      branch:
+        - master
+      event:
+        - push
+
+  - name: deploy-to-cs-dev-from-build-number
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: dev
+      HOCS_POSTGRES_DEV:
+        from_secret: hocs_postgres_dev
+      KUBE_NAMESPACE: cs-dev
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: build-${DRONE_BUILD_NUMBER}
+    when:
+      branch:
+        - master
+      event:
+        - push
+        - tag
+
+  - name: deploy-to-wcs-dev-from-build-number
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: dev
+      HOCS_POSTGRES_DEV:
+        from_secret: hocs_postgres_dev
+      KUBE_NAMESPACE: wcs-dev
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: build-${DRONE_BUILD_NUMBER}
+    when:
+      branch:
+        - master
+      event:
+        - push
+        - tag
+
+  - name: deployment
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: ${DRONE_DEPLOY_TO}
+      HOCS_POSTGRES_DEMO:
+        from_secret: hocs_postgres_demo
+      HOCS_POSTGRES_DEV:
+        from_secret: hocs_postgres_dev
+      HOCS_POSTGRES_QA:
+        from_secret: hocs_postgres_qa
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+    when:
+      event:
+        - deployment
+      target:
+        - dev
+        - qa
+        - demo
+
+  - name: deploy-to-prod
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: prod
+      HOCS_POSTGRES_PROD:
+        from_secret: hocs_postgres_prod
+      KUBE_SERVER: https://kube-api-prod.prod.acp.homeoffice.gov.uk
+      VERSION: ${IMAGE_VERSION}
+    when:
+      event:
+        - deployment
+      target:
+        - prod
+
+...
