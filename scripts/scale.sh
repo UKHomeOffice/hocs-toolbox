@@ -14,10 +14,6 @@ if [ "$#" -ne 1 ]; then
   echo "Usage: scale.sh down/up" >&2
   exit 1
 fi
-if [ "$1" != "down" -a "$1" != "up" ]; then
-  echo "Usage: scale.sh down/up" >&2
-  exit 1
-fi
 
 echo "Please be patient as some of these steps take up to a minute to complete."
 
@@ -37,19 +33,23 @@ if [ "$1" = "down" ]; then
   sleep 20
   kubectl scale --replicas=0 deployment/hocs-info-service
 else
-  kubectl scale --replicas=1 deployment/hocs-info-service
-  sleep 60
-  kubectl scale --replicas=1 deployment/hocs-casework
-  kubectl scale --replicas=1 deployment/hocs-workflow
-  kubectl scale --replicas=1 deployment/hocs-audit
-  sleep 20
-  kubectl scale --replicas=1 deployment/hocs-docs-converter
-  kubectl scale --replicas=1 deployment/hocs-docs
-  kubectl scale --replicas=1 deployment/hocs-notify
-  kubectl scale --replicas=1 deployment/hocs-search
-  kubectl scale --replicas=1 deployment/hocs-templates
-  sleep 30
-  kubectl scale --replicas=1 deployment/hocs-frontend
-  kubectl scale --replicas=1 deployment/hocs-management-ui
+  if [ "$1" = "up" ]; then
+      kubectl scale --replicas=1 deployment/hocs-info-service
+      sleep 60
+      kubectl scale --replicas=1 deployment/hocs-casework
+      kubectl scale --replicas=1 deployment/hocs-workflow
+      kubectl scale --replicas=1 deployment/hocs-audit
+      sleep 20
+      kubectl scale --replicas=1 deployment/hocs-docs-converter
+      kubectl scale --replicas=1 deployment/hocs-docs
+      kubectl scale --replicas=1 deployment/hocs-notify
+      kubectl scale --replicas=1 deployment/hocs-search
+      kubectl scale --replicas=1 deployment/hocs-templates
+      sleep 30
+      kubectl scale --replicas=1 deployment/hocs-frontend
+      kubectl scale --replicas=1 deployment/hocs-management-ui
+  else
+      echo "Usage: scale.sh down/up" >&2
+  fi
 fi
 
