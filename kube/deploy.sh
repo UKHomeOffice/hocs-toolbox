@@ -6,7 +6,7 @@ if [[ -z ${VERSION} ]] ; then
 fi
 
 if [[ ${ENVIRONMENT} == "prod" ]] ; then
-    echo "deploy ${VERSION} to prod namespace, using HOCS_POSTGRES_PR drone secret"
+    echo "deploy ${VERSION} to prod namespace, using HOCS_POSTGRES_PROD drone secret"
     export CA_URL="https://raw.githubusercontent.com/UKHomeOffice/acp-ca/master/acp-prod.crt"
     export KUBE_TOKEN=${HOCS_POSTGRES_PROD}
 else
