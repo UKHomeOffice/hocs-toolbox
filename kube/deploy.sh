@@ -30,7 +30,7 @@ fi
 
 export KUBE_CERTIFICATE_AUTHORITY=/tmp/cert.crt
 if ! wget --quiet $CA_URL -O $KUBE_CERTIFICATE_AUTHORITY; then
-    echo "[error] faled to download certificate authority!"
+    echo "[error] failed to download certificate authority"
     exit 1
 fi
 
