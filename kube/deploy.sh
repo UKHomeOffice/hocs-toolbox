@@ -1,4 +1,4 @@
-export KUBE_NAMESPACE=${KUBE_NAMESPACE}
+export KUBE_NAMESPACE=${ENVIRONMENT}
 export KUBE_SERVER=${KUBE_SERVER}
 
 if [[ -z ${VERSION} ]] ; then
