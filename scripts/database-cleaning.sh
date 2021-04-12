@@ -17,5 +17,5 @@ then
     psql -c "DROP SCHEMA IF EXISTS workflow CASCADE"
     psql -c "CREATE SCHEMA workflow"
 else
-    echo 'Aborted, no action was performed.' >&2
+    echo 'Aborted. No action was performed.' >&2
 fi
