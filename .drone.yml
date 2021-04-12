@@ -36,7 +36,7 @@ steps:
       VERSION: build-${DRONE_BUILD_NUMBER}
     when:
       branch:
-        - master
+        - main
       event:
         - push
         - tag
@@ -80,9 +80,8 @@ steps:
       event:
         - deployment
       target:
-        - dev
-        - qa
-        - demo
+         exclude:
+            - prod
 
   - name: deploy-to-prod
     pull: if-not-exists
