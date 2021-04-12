@@ -10,12 +10,12 @@ then
     export PGHOST=${HOCS_DB_HOSTNAME}
     export PGUSER=${HOCS_USERNAME}
     export PGDATABASE=${HOCS_DB_NAME}
-    psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS info CASCADE"
-    psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS casework CASCADE"
-    psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS audit CASCADE"
-    psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS document CASCADE"
-    psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS workflow CASCADE"
-    psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "CREATE SCHEMA workflow"
+    psql -c "DROP SCHEMA IF EXISTS info CASCADE"
+    psql -c "DROP SCHEMA IF EXISTS casework CASCADE"
+    psql -c "DROP SCHEMA IF EXISTS audit CASCADE"
+    psql -c "DROP SCHEMA IF EXISTS document CASCADE"
+    psql -c "DROP SCHEMA IF EXISTS workflow CASCADE"
+    psql -c "CREATE SCHEMA workflow"
 else
     echo 'Aborted, no action was performed.' >&2
 fi
