@@ -36,7 +36,7 @@ fi
 
 if [[ -z ${KUBE_TOKEN} ]] ; then
     echo "Failed to find a value for KUBE_TOKEN - exiting"
-    exit -1
+    exit 1
 fi
 
 kd --timeout 5m0s --file deployment.yaml
