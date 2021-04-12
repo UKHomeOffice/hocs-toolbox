@@ -1,90 +1,120 @@
-pipeline:
+---
+kind: pipeline
+name: default
 
-  docker-build:
-      image: docker:17.09.1
-      environment:
-        - DOCKER_HOST=tcp://172.17.0.1:2375
-      commands:
-        - docker build -t hocs-toolbox .
-      when:
-        branch: [master, refs/tags/*]
-        event: [push, tag]
+platform:
+  os: linux
+  arch: amd64
 
-  install-docker-image:
-      image: docker:17.09.1
-      environment:
-        - DOCKER_HOST=tcp://172.17.0.1:2375
-      secrets:
-        - docker_password
-      commands:
-        - docker login -u=hocs-bot -p=$${DOCKER_PASSWORD} docker.digital.homeoffice.gov.uk
-        - docker tag hocs-toolbox docker.digital.homeoffice.gov.uk/hocs-toolbox:build-$${DRONE_BUILD_NUMBER}
-        - docker tag hocs-toolbox docker.digital.homeoffice.gov.uk/hocs-toolbox:latest
-        - docker push docker.digital.homeoffice.gov.uk/hocs-toolbox:build-$${DRONE_BUILD_NUMBER}
-        - docker push docker.digital.homeoffice.gov.uk/hocs-toolbox:latest
-      when:
-        branch: master
-        event: push
-
-  deploy-to-cs-dev-from-build-number:
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+steps:
+  - name: docker-build
+    pull: if-not-exists
+    image: docker:17.09.1
+    commands:
+      - docker build -t hocs-toolbox .
     environment:
-      - KUBE_NAMESPACE=cs-dev
-      - ENVIRONMENT=dev
-      - VERSION=build-${DRONE_BUILD_NUMBER}
-      - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-    secrets:
-      - hocs_postgres_dev
+      DOCKER_HOST: tcp://172.17.0.1:2375
+    when:
+      branch:
+        - master
+        - refs/tags/*
+      event:
+        - push
+        - tag
+
+  - name: build & push
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      tags:
+        - build_${DRONE_BUILD_NUMBER}
+        - ${DRONE_COMMIT_SHA}
+        - branch-${DRONE_COMMIT_BRANCH/\//_}
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: QUAY_ROBOT_TOKEN
+      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+
+  - name: deploy-to-cs-dev-from-build-number
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
     commands:
       - cd kube
       - ./deploy.sh
-    when:
-      branch: master
-      event: [push, tag]
-
-  deploy-to-wcs-dev-from-build-number:
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
     environment:
-      - KUBE_NAMESPACE=wcs-dev
-      - ENVIRONMENT=dev
-      - VERSION=build-${DRONE_BUILD_NUMBER}
-      - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-    secrets:
-      - hocs_postgres_dev
+      ENVIRONMENT: dev
+      HOCS_POSTGRES_DEV:
+        from_secret: hocs_postgres_dev
+      KUBE_NAMESPACE: cs-dev
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: build-${DRONE_BUILD_NUMBER}
+    when:
+      branch:
+        - master
+      event:
+        - push
+        - tag
+
+  - name: deploy-to-wcs-dev-from-build-number
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
     commands:
       - cd kube
       - ./deploy.sh
-    when:
-      branch: master
-      event: [push, tag]
-
-  deployment:
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
     environment:
-      - ENVIRONMENT=${DRONE_DEPLOY_TO}
-      - KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-    secrets:
-      - hocs_postgres_dev
-      - hocs_postgres_qa
-      - hocs_postgres_demo
+      ENVIRONMENT: dev
+      HOCS_POSTGRES_DEV:
+        from_secret: hocs_postgres_dev
+      KUBE_NAMESPACE: wcs-dev
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: build-${DRONE_BUILD_NUMBER}
+    when:
+      branch:
+        - master
+      event:
+        - push
+        - tag
+
+  - name: deployment
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
     commands:
       - cd kube
       - ./deploy.sh
+    environment:
+      ENVIRONMENT: ${DRONE_DEPLOY_TO}
+      HOCS_POSTGRES_DEMO:
+        from_secret: hocs_postgres_demo
+      HOCS_POSTGRES_DEV:
+        from_secret: hocs_postgres_dev
+      HOCS_POSTGRES_QA:
+        from_secret: hocs_postgres_qa
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
     when:
-      event: deployment
-      environment: [dev, qa, demo]
+      event:
+        - deployment
+      target:
+        - dev
+        - qa
+        - demo
 
-  deploy-to-prod:
-      image: quay.io/ukhomeofficedigital/kd:v1.16.0
-      environment:
-        - ENVIRONMENT=prod
-        - VERSION=${IMAGE_VERSION}
-        - KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
-      secrets:
-        - hocs_postgres_prod
-      commands:
-        - cd kube
-        - ./deploy.sh
-      when:
-        event: deployment
-        environment: prod
+  - name: deploy-to-prod
+    pull: if-not-exists
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: prod
+      HOCS_POSTGRES_PROD:
+        from_secret: hocs_postgres_prod
+      KUBE_SERVER: https://kube-api-prod.prod.acp.homeoffice.gov.uk
+      VERSION: ${IMAGE_VERSION}
+    when:
+      event:
+        - deployment
+      target:
+        - prod
+
+...
