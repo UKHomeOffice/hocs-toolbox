@@ -95,9 +95,8 @@ steps:
       event:
         - deployment
       target:
-        - dev
-        - qa
-        - demo
+         exclude:
+            - prod
 
   - name: deploy-to-prod
     pull: if-not-exists
