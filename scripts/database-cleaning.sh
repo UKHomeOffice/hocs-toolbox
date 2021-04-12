@@ -6,6 +6,9 @@ read -p 'Are you sure you want to remove the database (y/n)? ' yes_no
 if [[ $yes_no = 'y' || $yes_no = 'Y' ]]
 then
     export PGPASSWORD=${HOCS_PASSWORD}
+    export PGHOST=${HOCS_DB_HOSTNAME}
+    export PGUSER=${HOCS_USERNAME}
+    export PGDATABASE=${HOCS_DB_NAME}
     psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS info CASCADE"
     psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS casework CASCADE"
     psql -h${HOCS_DB_HOSTNAME} -U${HOCS_USERNAME} -d${HOCS_DB_NAME} -c "DROP SCHEMA IF EXISTS audit CASCADE"
