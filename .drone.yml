@@ -5,7 +5,7 @@ pipeline:
       environment:
         - DOCKER_HOST=tcp://172.17.0.1:2375
       commands:
-        - docker build -t hocs-psql-exec .
+        - docker build -t hocs-toolbox .
       when:
         branch: [master, refs/tags/*]
         event: [push, tag]
@@ -18,10 +18,10 @@ pipeline:
         - docker_password
       commands:
         - docker login -u=hocs-bot -p=$${DOCKER_PASSWORD} docker.digital.homeoffice.gov.uk
-        - docker tag hocs-psql-exec docker.digital.homeoffice.gov.uk/hocs-psql-exec:build-$${DRONE_BUILD_NUMBER}
-        - docker tag hocs-psql-exec docker.digital.homeoffice.gov.uk/hocs-psql-exec:latest
-        - docker push docker.digital.homeoffice.gov.uk/hocs-psql-exec:build-$${DRONE_BUILD_NUMBER}
-        - docker push docker.digital.homeoffice.gov.uk/hocs-psql-exec:latest
+        - docker tag hocs-toolbox docker.digital.homeoffice.gov.uk/hocs-toolbox:build-$${DRONE_BUILD_NUMBER}
+        - docker tag hocs-toolbox docker.digital.homeoffice.gov.uk/hocs-toolbox:latest
+        - docker push docker.digital.homeoffice.gov.uk/hocs-toolbox:build-$${DRONE_BUILD_NUMBER}
+        - docker push docker.digital.homeoffice.gov.uk/hocs-toolbox:latest
       when:
         branch: master
         event: push
