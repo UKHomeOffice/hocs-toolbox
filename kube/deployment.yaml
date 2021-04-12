@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hocs-toolbox
+  labels:
+    version: {{.VERSION}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: hocs-toolbox
+  template:
+    metadata:
+      labels:
+        name: hocs-toolbox
+        version: {{.VERSION}}
+        role: hocs-backend
+    spec:
+      imagePullSecrets:
+      - name: registry-credentials
+      containers:
+        - name: hocs-toolbox-query
+          image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
+          imagePullPolicy: Always
+          securityContext:
+            runAsNonRoot: true
+            capabilities:
+              drop:
+               - SETUID
+               - SETGID
+          env:
+            - name: MODE
+              value: "query"
+            - name: HOCS_DB_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: endpoint
+            - name: HOCS_DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: port
+            - name: HOCS_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: db_name
+            - name: HOCS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: username
+            - name: HOCS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: password
+            - name: HOCS_INFO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: info_username
+            - name: HOCS_INFO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds
+                  key: info_password
+            - name: HOCS_DOCS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-docs
+                  key: rds_user
+            - name: HOCS_DOCS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-docs
+                  key: rds_password
+            - name: HOCS_CASEWORK_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-casework
+                  key: rds_user
+            - name: HOCS_CASEWORK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-casework
+                  key: rds_password
+            - name: HOCS_WORKFLOW_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_user
+            - name: HOCS_WORKFLOW_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-workflow
+                  key: rds_password
+            - name: HOCS_AUDIT_DB_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds-audit
+                  key: endpoint
+            - name: HOCS_AUDIT_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-rds-audit
+                  key: db_name
+            - name: HOCS_AUDIT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-audit
+                  key: rds_user
+            - name: HOCS_AUDIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hocs-audit
+                  key: rds_password
+          resources:
+            limits:
+              memory: "200Mi"
+              cpu: 400m
+            requests:
+              memory: "50Mi"
+              cpu: 100m
