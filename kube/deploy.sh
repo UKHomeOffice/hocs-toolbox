@@ -1,10 +1,6 @@
 export KUBE_NAMESPACE=${ENVIRONMENT}
 export KUBE_SERVER=${KUBE_SERVER}
 
-if [[ -z ${VERSION} ]] ; then
-    export VERSION=${IMAGE_VERSION}
-fi
-
 if [[ ${ENVIRONMENT} == "prod" ]] ; then
     echo "deploy ${VERSION} to prod namespace, using HOCS_POSTGRES_PROD drone secret"
     export CA_URL="https://raw.githubusercontent.com/UKHomeOffice/acp-ca/master/acp-prod.crt"
