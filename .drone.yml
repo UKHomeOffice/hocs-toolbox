@@ -51,7 +51,7 @@ steps:
       VERSION: build-${DRONE_BUILD_NUMBER}
     when:
       branch:
-        - master
+        - main
       event:
         - push
         - tag
