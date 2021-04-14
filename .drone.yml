@@ -7,6 +7,10 @@ platform:
   os: linux
   arch: amd64
 
+trigger:
+  event:
+    - push
+
 steps:
   - name: build & push
     image: plugins/docker
