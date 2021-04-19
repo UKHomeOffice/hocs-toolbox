@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euox pipefail
 
 export VALID_NAMESPACES=("hocs-gamma" "hocs-delta" "hocs-qax")
 
