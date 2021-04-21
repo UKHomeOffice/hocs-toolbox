@@ -23,8 +23,22 @@ then
 
     aws-es-curl --profile not-prod-es --region=eu-west-2 -X PUT https://${ELASTICSEARCH_ENDPOINT}/${current}-case \
      -H "Content-Type: application/json" -d @elastic_mapping
-    aws-es-curl --profile not-prod-es --region=eu-west-2 -X POST https://${ELASTICSEARCH_ENDPOINT}/_aliases \
-     -d '{"actions":[{"add":{"alias":"${current}-latest-case","index":"${current}-case"}}]}'
+    
+    if [[ $current = 'hocs-qax']]
+    then
+        aws-es-curl --profile not-prod-es --region=eu-west-2 -X POST https://${ELASTICSEARCH_ENDPOINT}/_aliases \
+        -d '{"actions":[{"add":{"alias":"hocs-qax-latest-case","index":"$hocs-qax-case"}}]}'
+    fi
+    if [[ $current = 'hocs-delta']]
+    then
+        aws-es-curl --profile not-prod-es --region=eu-west-2 -X POST https://${ELASTICSEARCH_ENDPOINT}/_aliases \
+        -d '{"actions":[{"add":{"alias":"hocs-delta-latest-case","index":"$hocs-delta-case"}}]}'
+    fi
+    if [[ $current = 'hocs-gamma']]
+    then
+        aws-es-curl --profile not-prod-es --region=eu-west-2 -X POST https://${ELASTICSEARCH_ENDPOINT}/_aliases \
+        -d '{"actions":[{"add":{"alias":"hocs-gamma-latest-case","index":"$hocs-gamma-case"}}]}'
+    fi
 else
     echo 'Aborted. No action was performed.' >&2
 fi
