@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euox pipefail
+set -euo pipefail
 echo 'Warning: this action will completely remove the database '${HOCS_DB_NAME^^}' and all its contents. It cannot be undone!'
 
 read -p 'Are you sure you want to remove the database (y/n)? ' yes_no

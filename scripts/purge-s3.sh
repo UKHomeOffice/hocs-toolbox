@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euox pipefail
+set -euo pipefail
 
 echo 'Warning: this action will completely remove all the documents in'
 echo 'both the trusted and untrusted S3 buckets of '${KUBE_NAMESPACE^^}'. It cannot be undone!'
