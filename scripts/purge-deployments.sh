@@ -13,7 +13,7 @@ fi
 
 echo 'Warning: this action will completely remove all the kubernetes deployments of '${current^^}'. It cannot be undone!'
 
-read -p 'Are you sure you want to remove all the kubernetes deployments (y/n)? ' yes_no
+read -p 'Are you sure you want to remove all the kubernetes deployments (y/N)? ' yes_no
 
 if [[ $yes_no = 'y' || $yes_no = 'Y' ]]
 then
