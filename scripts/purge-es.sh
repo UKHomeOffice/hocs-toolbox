@@ -18,12 +18,12 @@ read -p 'Are you sure you want to remove all the contents (y/n)? ' yes_no
 
 if [[ $yes_no = 'y' || $yes_no = 'Y' ]]
 then
-    aws-es-curl --profile not-prod-es --region=eu-west-2 -X DELETE https://search-cs-notprod-elasticsearch-eg6slvni45k55o2j3lmo6yupdy.eu-west-2.es.amazonaws.com/${current}-case
-    aws-es-curl --profile not-prod-es --region=eu-west-2 -X DELETE https://search-cs-notprod-elasticsearch-eg6slvni45k55o2j3lmo6yupdy.eu-west-2.es.amazonaws.com/${current}-lastest-case
+    aws-es-curl --profile not-prod-es --region=eu-west-2 -X DELETE https://${ELASTICSEARCH_ENDPOINT}/${current}-case
+    aws-es-curl --profile not-prod-es --region=eu-west-2 -X DELETE https://${ELASTICSEARCH_ENDPOINT}/${current}-lastest-case
 
-    aws-es-curl --profile not-prod-es --region=eu-west-2 -X PUT https://search-cs-notprod-elasticsearch-eg6slvni45k55o2j3lmo6yupdy.eu-west-2.es.amazonaws.com/${current}-case \
+    aws-es-curl --profile not-prod-es --region=eu-west-2 -X PUT https://${ELASTICSEARCH_ENDPOINT}/${current}-case \
      -H "Content-Type: application/json" -d @elastic_mapping
-    aws-es-curl --profile not-prod-es --region=eu-west-2 -X POST https://search-cs-notprod-elasticsearch-eg6slvni45k55o2j3lmo6yupdy.eu-west-2.es.amazonaws.com/_aliases \
+    aws-es-curl --profile not-prod-es --region=eu-west-2 -X POST https://${ELASTICSEARCH_ENDPOINT}/_aliases \
      -d '{"actions":[{"add":{"alias":"${current}-latest-case","index":"${current}-case"}}]}'
 else
     echo 'Aborted. No action was performed.' >&2
