@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euox pipefail
+set -euo pipefail
 
 echo 'Warning: this action will completely remove all the messages in'
 echo 'all of the queues in '${KUBE_NAMESPACE^^}'. It cannot be undone!'
