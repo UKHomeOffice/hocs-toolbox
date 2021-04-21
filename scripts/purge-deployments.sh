@@ -11,7 +11,7 @@ else
   exit 1
 fi
 
-echo 'Warning: this action will completely remove all the kubernetes deployments of '${current^^}'. It cannot be undone!'
+echo "Warning: this action will completely remove all the kubernetes deployments of ${current^^}. It cannot be undone!"
 
 read -p 'Are you sure you want to remove all the kubernetes deployments (y/N)? ' yes_no
 
