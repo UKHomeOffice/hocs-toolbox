@@ -13,14 +13,14 @@ RUN addgroup ${GROUP} && \
     adduser -u ${USER_ID} -G ${GROUP} -h /app -D ${USER} 
 RUN mkdir -p /app && \
     chown -R ${USER}:${GROUP} /app
-RUN mkdir -p /app/scripts && \
-    chown -R ${USER}:${GROUP} /app/scripts
+RUN mkdir -p /app/scripts
 
 COPY run.sh /app/
 RUN chmod a+x /app/run.sh
 
 COPY scripts/*.sh /app/scripts/
 RUN chmod a+x /app/scripts/*.sh
+RUN chown -R ${USER}:${GROUP} /app/scripts
 
 # Installation of AWS CLI
 RUN apk --no-cache update && \
