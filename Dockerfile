@@ -11,7 +11,7 @@ WORKDIR /app
 
 RUN addgroup ${GROUP} && \
     adduser -u ${USER_ID} -G ${GROUP} -h /app -D ${USER} 
-RUN mkdir -p /app && \
+RUN mkdir -p /app/scripts && \
     chown -R ${USER}:${GROUP} /app
 RUN mkdir -p /app/scripts
 
