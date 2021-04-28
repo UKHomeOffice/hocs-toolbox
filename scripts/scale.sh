@@ -33,6 +33,7 @@ if [ "$1" = "down" ]; then
   kubectl scale --replicas=0 deployment/hocs-casework
   sleep 20
   kubectl scale --replicas=0 deployment/hocs-info-service
+  kubectl scale --replicas=0 deployment/hocs-case-creator
 else
   if [ "$1" = "up" ]; then
       kubectl scale --replicas=1 deployment/hocs-info-service
@@ -49,6 +50,7 @@ else
       sleep 30
       kubectl scale --replicas=1 deployment/hocs-frontend
       kubectl scale --replicas=1 deployment/hocs-management-ui
+      kubectl scale --replicas=1 deployment/hocs-case-creator
   else
       echo "Usage: scale.sh down/up" >&2
   fi
