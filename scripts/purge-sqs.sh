@@ -2,11 +2,11 @@
 set -euo pipefail
 
 echo 'Warning: this action will completely remove all the messages in'
-echo 'all of the queues in '${KUBE_NAMESPACE^^}'. It cannot be undone!'
+echo 'all of the queues in '${KUBE_NAMESPACE}'. It cannot be undone!'
 
 read -p 'Are you sure you want to remove all messages (y/n)? ' yes_no
 
-if [[ $yes_no = 'y' || $yes_no = 'Y' ]]
+if [ $yes_no = 'y' -o $yes_no = 'Y' ];
 then
     export HTTP_PROXY=http://hocs-outbound-proxy.${KUBE_NAMESPACE}.svc.cluster.local:31290
     export HTTPS_PROXY=http://hocs-outbound-proxy.${KUBE_NAMESPACE}.svc.cluster.local:31290
