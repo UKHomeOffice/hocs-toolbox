@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: destroy-info-schema
+  labels:
+    role: hocs-backend
+spec:
+  template:
+    metadata:
+      labels:
+        role: hocs-backend
+    spec:
+      containers:
+      - name: toolbox
+        image: quay.io/ukhomeofficedigital/hocs-toolbox:branch-main # TODO: make this :latest
+        command: [ "psql", "-c", "DROP SCHEMA IF EXISTS info CASCADE" ]
+        env:
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{.KUBE_NAMESPACE}}-rds
+                key: password
+          - name: PGHOST
+            valueFrom:
+              secretKeyRef:
+                name: {{.KUBE_NAMESPACE}}-rds
+                key: endpoint
+          - name: PGUSER
+            valueFrom:
+              secretKeyRef:
+                name: {{.KUBE_NAMESPACE}}-rds
+                key: username
+          - name: PGDATABASE
+            valueFrom:
+              secretKeyRef:
+                name: {{.KUBE_NAMESPACE}}-rds
+                key: db_name
+      restartPolicy: Never
+  backoffLimit: 4
