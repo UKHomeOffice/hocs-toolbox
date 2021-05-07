@@ -49,9 +49,10 @@ steps:
       ENVIRONMENT: hocs-gamma
       KUBE_TOKEN:
         from_secret: hocs_toolbox_hocs_gamma
-    target:
-      - teardown
-      - teardown-gamma
+    when:
+      target:
+        - teardown
+        - teardown-gamma
 
   - name: teardown delta
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
@@ -62,8 +63,9 @@ steps:
       ENVIRONMENT: hocs-delta
       KUBE_TOKEN:
         from_secret: hocs_toolbox_hocs_delta
-    target:
-      - teardown
-      - teardown-delta
+    when:
+      target:
+        - teardown
+        - teardown-delta
 
 ...
