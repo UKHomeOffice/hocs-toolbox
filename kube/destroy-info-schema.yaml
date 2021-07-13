@@ -36,4 +36,3 @@ spec:
                 name: {{.KUBE_NAMESPACE}}-rds
                 key: db_name
       restartPolicy: Never
-  backoffLimit: 4
