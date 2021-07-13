@@ -12,7 +12,8 @@ spec:
     spec:
       containers:
       - name: toolbox
-        image: quay.io/ukhomeofficedigital/hocs-toolbox:latest
+        image: quay.io/ukhomeofficedigital/hocs-toolbox
+        imagePullPolicy: Always
         command: [ "psql", "-c", "DROP SCHEMA IF EXISTS info CASCADE" ]
         env:
           - name: PGPASSWORD
