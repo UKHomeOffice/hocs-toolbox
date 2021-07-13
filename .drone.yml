@@ -3,10 +3,6 @@ kind: pipeline
 type: kubernetes
 name: default
 
-platform:
-  os: linux
-  arch: amd64
-
 trigger:
   event:
     - push
@@ -46,6 +42,32 @@ steps:
       - clone
 
 ---
+kind: pipeline
+type: kubernetes
+name: deployment
+
+trigger:
+  event:
+    - promote
+  target:
+    exclude:
+      - "*-prod"
+      - teardown
+
+steps:
+  - name: deploy to not-prod
+    image: quay.io/ukhomeofficedigital/kd:v1.16.0
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: ${DRONE_DEPLOY_TO}
+      KUBE_TOKEN:
+        from_secret: hocs_toolbox_${DRONE_DEPLOY_TO}
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      VERSION: ${VERSION}
+
+---
 # we're doing this as a promote so one can manually run it
 # normally this is defined in hocs-data's .drone.yml
 
@@ -56,6 +78,8 @@ name: teardown
 trigger:
   event:
     - promote
+  target:
+    - teardown
 
 steps:
   - name: teardown non-mainline
@@ -64,9 +88,6 @@ steps:
       - cd kube
       - bash ./teardown.sh
     environment:
-      ENVIRONMENT: ${DRONE_DEPLOY_TO}
+      ENVIRONMENT: ${ENVIRONMENT}
       KUBE_TOKEN:
         from_secret: hocs_toolbox_${DRONE_DEPLOY_TO/-/_}
-    when:
-      target:
-        - "hocs-*"
