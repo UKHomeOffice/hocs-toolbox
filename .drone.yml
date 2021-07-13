@@ -14,13 +14,16 @@ steps:
       registry: quay.io
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
       tags:
-        - build_${DRONE_BUILD_NUMBER}
         - ${DRONE_COMMIT_SHA}
         - branch-${DRONE_COMMIT_BRANCH/\//_}
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    when:
+      branch:
+        exclude:
+          - main
     depends_on:
       - clone
 
@@ -30,6 +33,7 @@ steps:
       registry: quay.io
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
       tags:
+        - ${DRONE_COMMIT_SHA}
         - latest
     environment:
       DOCKER_PASSWORD:
