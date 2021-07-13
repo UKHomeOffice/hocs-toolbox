@@ -25,9 +25,27 @@ steps:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    depends_on:
+      - clone
+
+  - name: build & push latest
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      tags:
+        - latest
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: QUAY_ROBOT_TOKEN
+      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    when:
+      branch:
+        - main
+    depends_on:
+      - clone
 
 ---
-
 # we're doing this as a promote so one can manually run it
 # normally this is defined in hocs-data's .drone.yml
 
