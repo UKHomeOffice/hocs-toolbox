@@ -58,32 +58,15 @@ trigger:
     - promote
 
 steps:
-  - name: teardown gamma
+  - name: teardown non-mainline
     image: quay.io/ukhomeofficedigital/kd:v1.16.0
     commands:
       - cd kube
       - bash ./teardown.sh
     environment:
-      ENVIRONMENT: hocs-gamma
+      ENVIRONMENT: ${DRONE_DEPLOY_TO}
       KUBE_TOKEN:
-        from_secret: hocs_toolbox_hocs_gamma
+        from_secret: hocs_toolbox_${DRONE_DEPLOY_TO/-/_}
     when:
       target:
-        - teardown
-        - teardown-gamma
-
-  - name: teardown delta
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
-    commands:
-      - cd kube
-      - bash ./teardown.sh
-    environment:
-      ENVIRONMENT: hocs-delta
-      KUBE_TOKEN:
-        from_secret: hocs_toolbox_hocs_delta
-    when:
-      target:
-        - teardown
-        - teardown-delta
-
-...
+        - "hocs-*"
