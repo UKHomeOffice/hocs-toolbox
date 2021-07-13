@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
       - name: toolbox
-        image: quay.io/ukhomeofficedigital/hocs-toolbox:branch-main # TODO: make this :latest
+        image: quay.io/ukhomeofficedigital/hocs-toolbox:latest
         command: [ "psql", "-c", "DROP SCHEMA IF EXISTS info CASCADE" ]
         env:
           - name: PGPASSWORD
