@@ -65,11 +65,10 @@ steps:
       - cd kube
       - ./deploy.sh
     environment:
-      ENVIRONMENT: ${DRONE_DEPLOY_TO}
       KUBE_TOKEN:
-        from_secret: hocs_toolbox_${DRONE_DEPLOY_TO}
+        from_secret: hocs_toolbox_${ENVIRONMENT}
       KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
-      VERSION: ${VERSION}
+      VERSION: ${VERSION=latest}
 
 ---
 # we're doing this as a promote so one can manually run it
@@ -92,6 +91,5 @@ steps:
       - cd kube
       - bash ./teardown.sh
     environment:
-      ENVIRONMENT: ${ENVIRONMENT}
       KUBE_TOKEN:
-        from_secret: hocs_toolbox_${DRONE_DEPLOY_TO/-/_}
+        from_secret: hocs_toolbox_${ENVIRONMENT/-/_}
