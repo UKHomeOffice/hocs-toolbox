@@ -2,7 +2,7 @@
 set -euo pipefail # make bash quit if something weird happens
 
 export KUBE_NAMESPACE=${ENVIRONMENT}
-export REPLICAS="1"
+export VERSION=${VERSION:-latest}
 export CA_URL="https://raw.githubusercontent.com/UKHomeOffice/acp-ca/master/acp-notprod.crt"
 
 export KUBE_CERTIFICATE_AUTHORITY=/tmp/cert.crt
