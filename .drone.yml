@@ -1,6 +1,23 @@
 ---
 kind: pipeline
 type: kubernetes
+name: lint
+
+trigger:
+  event:
+    - push
+
+steps:
+- name: lint bash
+  image: koalaman/shellcheck-alpine
+  commands:
+    - shellcheck *.sh */*.sh
+  depends_on:
+    - clone
+
+---
+kind: pipeline
+type: kubernetes
 name: default
 
 platform:

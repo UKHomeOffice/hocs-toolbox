@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euo pipefail
-echo 'Warning: this action will completely remove the database '${HOCS_DB_NAME}' and all its contents. It cannot be undone!'
+echo "Warning: this action will completely remove the database '${HOCS_DB_NAME}' and all its contents. It cannot be undone!"
 
-read -p 'Are you sure you want to remove the database (y/n)? ' yes_no
+read -rp 'Are you sure you want to remove the database (y/N)? ' yes_no
 
-if [ $yes_no = 'y' -o $yes_no = 'Y' ];
+if [ "$yes_no" = 'y' ] || [ "$yes_no" = 'Y' ];
 then
     export PGPASSWORD=${HOCS_PASSWORD}
     export PGHOST=${HOCS_DB_HOSTNAME}
