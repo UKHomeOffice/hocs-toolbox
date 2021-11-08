@@ -5,6 +5,11 @@ export KUBE_NAMESPACE=${ENVIRONMENT}
 export VERSION=${VERSION:-latest}
 export KUBE_CERTIFICATE_AUTHORITY="https://raw.githubusercontent.com/UKHomeOffice/acp-ca/master/acp-notprod.crt"
 
+echo
+echo "Deploying to ${ENVIRONMENT}"
+echo "Version: ${VERSION}"
+echo
+
 cd kd
 
 kd --timeout 5m0s \
