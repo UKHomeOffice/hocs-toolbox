@@ -28,6 +28,34 @@ steps:
 
 ---
 
+kind: pipeline
+type: kubernetes
+name: deploy
+
+trigger:
+  event:
+    - promote
+
+steps:
+  steps:
+    - name: deploy to not-prod
+      image: quay.io/ukhomeofficedigital/kd:latest
+      environment:
+        ENVIRONMENT: ${DRONE_DEPLOY_TO}
+        KUBE_SERVER: ${KUBE_SERVER}
+        KUBE_TOKEN:
+          from_secret: ${DRONE_DEPLOY_TO/-/_}
+      commands:
+        - cd kube
+        - ./deploy.sh
+      when:
+        target:
+          exclude:
+            - "*-prod"
+            - "teardown*"
+
+---
+
 # we're doing this as a promote so one can manually run it
 # normally this is defined in hocs-data's .drone.yml
 
