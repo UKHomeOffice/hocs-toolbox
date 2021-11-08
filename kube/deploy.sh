@@ -11,4 +11,7 @@ if ! wget --quiet $CA_URL -O $KUBE_CERTIFICATE_AUTHORITY; then
     exit 1
 fi
 
-kd --timeout 5m0s --file deployment.yaml
+cd kd
+
+kd --timeout 5m0s \
+  -f deployment.yaml
