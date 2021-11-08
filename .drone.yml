@@ -1,7 +1,24 @@
 ---
 kind: pipeline
 type: kubernetes
-name: default
+name: lint
+
+trigger:
+  event:
+    - push
+
+steps:
+- name: lint bash
+  image: koalaman/shellcheck-alpine
+  commands:
+    - shellcheck *.sh */*.sh
+  depends_on:
+    - clone
+
+---
+kind: pipeline
+type: kubernetes
+name: build
 
 platform:
   os: linux
@@ -12,6 +29,24 @@ trigger:
     - push
 
 steps:
+  - name: build & push main
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      tags:
+        - build_${DRONE_BUILD_NUMBER}
+        - ${DRONE_COMMIT_SHA}
+        - latest
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: QUAY_ROBOT_TOKEN
+      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    when:
+      branch:
+        include:
+          - main
+
   - name: build & push
     image: plugins/docker
     settings:
@@ -20,11 +55,41 @@ steps:
       tags:
         - build_${DRONE_BUILD_NUMBER}
         - ${DRONE_COMMIT_SHA}
-        - branch-${DRONE_COMMIT_BRANCH/\//_}
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    when:
+      branch:
+        exclude:
+          - main
+
+---
+
+kind: pipeline
+type: kubernetes
+name: deploy
+
+trigger:
+  event:
+    - promote
+
+steps:
+  - name: deploy to not-prod
+    image: quay.io/ukhomeofficedigital/kd:latest
+    environment:
+      ENVIRONMENT: ${DRONE_DEPLOY_TO}
+      KUBE_SERVER: ${KUBE_SERVER}
+      KUBE_TOKEN:
+        from_secret: ${DRONE_DEPLOY_TO/-/_}
+    commands:
+      - cd kube
+      - ./deploy.sh
+    when:
+      target:
+        exclude:
+          - "*-prod"
+          - "teardown*"
 
 ---
 
