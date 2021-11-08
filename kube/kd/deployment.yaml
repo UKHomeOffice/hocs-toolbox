@@ -19,7 +19,7 @@ spec:
         role: hocs-backend
     spec:
       imagePullSecrets:
-      - name: registry-credentials
+        - name: registry-credentials
       containers:
         - name: hocs-toolbox-query
           image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
