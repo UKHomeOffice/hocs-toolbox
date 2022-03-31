@@ -11,7 +11,7 @@ steps:
 - name: lint bash
   image: koalaman/shellcheck-alpine
   commands:
-    - shellcheck *.sh */*.sh
+    - shellcheck *.sh */*.sh */*/*.sh
   depends_on:
     - clone
 
@@ -31,15 +31,34 @@ trigger:
     - push
 
 steps:
-  - name: build & push
+  - name: build & push safe
+    image: plugins/docker
+    depends_on:
+      - clone
+    settings:
+      registry: quay.io
+      repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      target: safe
+      tags:
+        - build_${DRONE_BUILD_NUMBER}
+        - ${DRONE_COMMIT_SHA}
+        - ${DRONE_COMMIT_SHA}-safe
+        - latest
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: QUAY_ROBOT_TOKEN
+      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+
+  - name: build & push scary
+    depends_on:
+      - clone
     image: plugins/docker
     settings:
       registry: quay.io
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      target: dangerous
       tags:
-        - build_${DRONE_BUILD_NUMBER}
-        - ${DRONE_COMMIT_SHA}
-          - latest
+        - ${DRONE_COMMIT_SHA}-dangerous
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
@@ -60,11 +79,23 @@ trigger:
     - push
 
 steps:
-  - &deploy
-      name: hocs-gamma
+  - &deploySafe
+      name: cs-demo
       image: quay.io/ukhomeofficedigital/kd
       environment:
         VERSION: ${DRONE_COMMIT_SHA}
+        KUBE_TOKEN:
+          from_secret: KUBE_TOKEN_SAFE
+      commands:
+        - cd kube
+        - ./deploy.sh
+      depends_on:
+        - clone
+  - &deployDangerous
+      name: hocs-qax
+      image: quay.io/ukhomeofficedigital/kd
+      environment:
+        VERSION: ${DRONE_COMMIT_SHA}-dangerous
         KUBE_TOKEN:
           from_secret: KUBE_TOKEN
       commands:
@@ -72,10 +103,27 @@ steps:
         - ./deploy.sh
       depends_on:
         - clone
-  - <<: *deploy
+
+  - <<: *deploySafe
+    name: cs-dev
+  - <<: *deploySafe
+    name: cs-qa
+ # - <<: *deploySafe # in definition ^
+ #   name: cs-demo
+  - <<: *deploySafe
+    name: wcs-dev
+  - <<: *deploySafe
+    name: wcs-qa
+  - <<: *deploySafe
+    name: wcs-demo
+  - <<: *deployDangerous
     name: hocs-delta
-  - <<: *deploy
+  - <<: *deployDangerous
+    name: hocs-gamma
+  - <<: *&deployDangerous
     name: hocs-epsilon
+ #- <<: *deployDangerous # in definition ^
+ #  name: hocs-qax
 ---
 
 # we're doing this as a promote so one can manually run it
