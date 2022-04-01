@@ -119,7 +119,7 @@ steps:
     name: hocs-delta
   - <<: *deployDangerous
     name: hocs-gamma
-  - <<: *&deployDangerous
+  - <<: *deployDangerous
     name: hocs-epsilon
  #- <<: *deployDangerous # in definition ^
  #  name: hocs-qax
