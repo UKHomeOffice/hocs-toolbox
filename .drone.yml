@@ -82,7 +82,7 @@ steps:
       name: cs-demo
       image: quay.io/ukhomeofficedigital/kd
       environment:
-        VERSION: ${DRONE_COMMIT_SHA}
+        VERSION: ${DRONE_COMMIT_SHA}-safe
         KUBE_TOKEN:
           from_secret: KUBE_TOKEN_SAFE
       commands:
