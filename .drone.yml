@@ -41,7 +41,6 @@ steps:
       target: safe
       tags:
         - build_${DRONE_BUILD_NUMBER}
-        - ${DRONE_COMMIT_SHA}
         - ${DRONE_COMMIT_SHA}-safe
         - latest
     environment:
