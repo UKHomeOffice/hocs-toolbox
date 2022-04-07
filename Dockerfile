@@ -18,9 +18,9 @@ RUN mkdir -p /app/scripts
 COPY run.sh /app/
 RUN chmod a+x /app/run.sh
 
-# Installation of AWS CLI
+# Installation of AWS CLI & libpq (latter needed for password auth on PG client)
 RUN apk --no-cache update && \
-    apk add --update --no-cache curl py-pip && \
+    apk add --update --no-cache curl py-pip libpq && \
     apk --no-cache add py-setuptools ca-certificates groff less && \
     pip --no-cache-dir install awscli==${AWS_CLI_VERSION} && \
     rm -rf /var/cache/apk/*
