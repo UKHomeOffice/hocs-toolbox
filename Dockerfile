@@ -18,6 +18,10 @@ RUN mkdir -p /app/scripts
 COPY run.sh /app/
 RUN chmod a+x /app/run.sh
 
+
+# Get latest versions of everything
+RUN apk update && apk upgrade
+
 # Installation of AWS CLI & libpq (latter needed for password auth on PG client)
 RUN apk --no-cache update && \
     apk add --update --no-cache curl py-pip libpq && \
