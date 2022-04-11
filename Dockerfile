@@ -1,4 +1,4 @@
-FROM postgres:9.6-alpine
+FROM postgres:14-alpine
 
 ENV USER hocs
 ENV USER_ID 1000
