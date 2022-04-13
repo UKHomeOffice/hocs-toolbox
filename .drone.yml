@@ -50,7 +50,7 @@ steps:
 
   - name: build & push scary
     depends_on:
-      - clone
+      - build & push safe
     image: plugins/docker
     settings:
       registry: quay.io
