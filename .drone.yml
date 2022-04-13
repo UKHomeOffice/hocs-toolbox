@@ -11,7 +11,7 @@ steps:
 - name: lint bash
   image: koalaman/shellcheck-alpine
   commands:
-    - shellcheck *.sh */*.sh
+    - shellcheck *.sh */*.sh */*/*.sh
   depends_on:
     - clone
 
@@ -25,72 +25,104 @@ platform:
   arch: amd64
 
 trigger:
+# branch:
+#   - main
   event:
     - push
 
 steps:
-  - name: build & push main
+  - name: build & push safe
     image: plugins/docker
+    depends_on:
+      - clone
     settings:
       registry: quay.io
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      target: safe
       tags:
         - build_${DRONE_BUILD_NUMBER}
-        - ${DRONE_COMMIT_SHA}
+        - ${DRONE_COMMIT_SHA}-safe
         - latest
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-    when:
-      branch:
-        include:
-          - main
 
-  - name: build & push
+  - name: build & push scary
+    depends_on:
+      - build & push safe
     image: plugins/docker
     settings:
       registry: quay.io
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      target: dangerous
       tags:
-        - build_${DRONE_BUILD_NUMBER}
-        - ${DRONE_COMMIT_SHA}
+        - ${DRONE_COMMIT_SHA}-dangerous
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-    when:
-      branch:
-        exclude:
-          - main
 
 ---
 
 kind: pipeline
 type: kubernetes
 name: deploy
+depends_on:
+  - build
 
 trigger:
+  branch:
+    - main
   event:
-    - promote
+    - push
 
 steps:
-  - name: deploy to not-prod
-    image: quay.io/ukhomeofficedigital/kd:latest
-    environment:
-      ENVIRONMENT: ${DRONE_DEPLOY_TO}
-      KUBE_SERVER: ${KUBE_SERVER}
-      KUBE_TOKEN:
-        from_secret: ${DRONE_DEPLOY_TO/-/_}
-    commands:
-      - cd kube
-      - ./deploy.sh
-    when:
-      target:
-        exclude:
-          - "*-prod"
-          - "teardown*"
+  - &deploySafe
+      name: cs-demo
+      image: quay.io/ukhomeofficedigital/kd
+      environment:
+        VERSION: ${DRONE_COMMIT_SHA}-safe
+        KUBE_TOKEN:
+          from_secret: KUBE_TOKEN_SAFE
+      commands:
+        - cd kube
+        - ./deploy.sh
+      depends_on:
+        - clone
+  - &deployDangerous
+      name: hocs-qax
+      image: quay.io/ukhomeofficedigital/kd
+      environment:
+        VERSION: ${DRONE_COMMIT_SHA}-dangerous
+        KUBE_TOKEN:
+          from_secret: KUBE_TOKEN
+      commands:
+        - cd kube
+        - ./deploy.sh
+      depends_on:
+        - clone
 
+  - <<: *deploySafe
+    name: cs-dev
+  - <<: *deploySafe
+    name: cs-qa
+ # - <<: *deploySafe # in definition ^
+ #   name: cs-demo
+  - <<: *deploySafe
+    name: wcs-dev
+  - <<: *deploySafe
+    name: wcs-qa
+  - <<: *deploySafe
+    name: wcs-demo
+  - <<: *deployDangerous
+    name: hocs-delta
+  - <<: *deployDangerous
+    name: hocs-gamma
+  - <<: *deployDangerous
+    name: hocs-epsilon
+ #- <<: *deployDangerous # in definition ^
+ #  name: hocs-qax
 ---
 
 # we're doing this as a promote so one can manually run it
