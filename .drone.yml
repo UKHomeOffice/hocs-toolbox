@@ -25,8 +25,8 @@ platform:
   arch: amd64
 
 trigger:
-# branch:
-#   - main
+  branch:
+    - main
   event:
     - push
 
