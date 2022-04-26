@@ -1,16 +1,17 @@
-FROM postgres:14.2-alpine AS base
+FROM alpine:3.14
 
 ENV USER hocs
 ENV USER_ID 1000
 ENV GROUP hocs
-ENV NAME hocs-toolbox
-ENV PGDATA /app/data
+ENV NAME hocs-migration-toolbox
 ENV AWS_CLI_VERSION 1.16.207
 
 WORKDIR /app
 
+RUN apk update && apk add bash
+
 RUN addgroup ${GROUP} && \
-    adduser -u ${USER_ID} -G ${GROUP} -h /app -D ${USER}
+    adduser -u ${USER_ID} -G ${GROUP} -h /app -D ${USER} 
 RUN mkdir -p /app/scripts && \
     chown -R ${USER}:${GROUP} /app
 RUN mkdir -p /app/scripts
@@ -18,18 +19,11 @@ RUN mkdir -p /app/scripts
 COPY run.sh /app/
 RUN chmod a+x /app/run.sh
 
-
-# Get latest versions of everything
-RUN apk update && apk upgrade
-
-# Installation of AWS CLI & libpq (latter needed for password auth on PG client)
 RUN apk --no-cache update && \
-    apk add --update --no-cache curl py-pip libpq && \
+    apk add --update --no-cache curl py-pip && \
     apk --no-cache add py-setuptools ca-certificates groff less && \
     pip --no-cache-dir install awscli==${AWS_CLI_VERSION} && \
     rm -rf /var/cache/apk/*
-
-RUN mkdir /data && chown ${USER_ID} /data
 
 # Installation of kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
@@ -37,13 +31,37 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
     && chmod +x ./kubectl \
     && mv ./kubectl /usr/local/bin
 
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
+    -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN mv ./kubectl /usr/local/bin
+
+# Install dependencies
+RUN apk --no-cache add curl gnupg
+
+# Download the desired package(s)
+RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk
+RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/mssql-tools_17.6.1.1-1_amd64.apk
+
+
+# (Optional) Verify signature, if 'gpg' is missing install it using 'apk add gnupg':
+RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.sig
+RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/mssql-tools_17.6.1.1-1_amd64.sig
+
+RUN curl https://packages.microsoft.com/keys/microsoft.asc  | gpg --import -
+RUN gpg --verify msodbcsql17_17.6.1.1-1_amd64.sig msodbcsql17_17.6.1.1-1_amd64.apk
+RUN gpg --verify mssql-tools_17.6.1.1-1_amd64.sig mssql-tools_17.6.1.1-1_amd64.apk
+
+
+# Install the package(s)
+RUN apk add --allow-untrusted msodbcsql17_17.6.1.1-1_amd64.apk
+RUN apk add --allow-untrusted mssql-tools_17.6.1.1-1_amd64.apk
+
+# Adding SQL Server tools to $PATH
+ENV PATH=$PATH:/opt/mssql-tools/bin
+
+RUN rm -f msodbcsql*.sig mssql-tools*.apk
+
+COPY LaganECM_schema.sql /app/
+
 USER ${USER_ID}
-CMD /app/run.sh
-
-FROM base AS safe
-COPY scripts/safe/*.sh /app/scripts/
-RUN echo "SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;" >> ~/.pgsqlrc
-
-FROM base AS dangerous
-COPY scripts/safe/*.sh /app/scripts/
-COPY scripts/dangerous/*.sh /app/scripts/

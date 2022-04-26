@@ -41,23 +41,8 @@ steps:
       target: safe
       tags:
         - build_${DRONE_BUILD_NUMBER}
-        - ${DRONE_COMMIT_SHA}-safe
-        - latest
-    environment:
-      DOCKER_PASSWORD:
-        from_secret: QUAY_ROBOT_TOKEN
-      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-
-  - name: build & push scary
-    depends_on:
-      - build & push safe
-    image: plugins/docker
-    settings:
-      registry: quay.io
-      repo: quay.io/ukhomeofficedigital/hocs-toolbox
-      target: dangerous
-      tags:
-        - ${DRONE_COMMIT_SHA}-dangerous
+        - ${DRONE_COMMIT_SHA}-cms
+        - cms
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
@@ -82,21 +67,9 @@ steps:
       name: cs-demo
       image: quay.io/ukhomeofficedigital/kd
       environment:
-        VERSION: ${DRONE_COMMIT_SHA}-safe
+        VERSION: ${DRONE_COMMIT_SHA}-cms
         KUBE_TOKEN:
           from_secret: KUBE_TOKEN_SAFE
-      commands:
-        - cd kube
-        - ./deploy.sh
-      depends_on:
-        - clone
-  - &deployDangerous
-      name: hocs-qax
-      image: quay.io/ukhomeofficedigital/kd
-      environment:
-        VERSION: ${DRONE_COMMIT_SHA}-dangerous
-        KUBE_TOKEN:
-          from_secret: KUBE_TOKEN
       commands:
         - cd kube
         - ./deploy.sh
