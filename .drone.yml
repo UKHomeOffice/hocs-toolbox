@@ -64,7 +64,7 @@ trigger:
 
 steps:
   - &deploySafe
-      name: cs-demo
+      name: cs-dev-migration
       image: quay.io/ukhomeofficedigital/kd
       environment:
         VERSION: ${DRONE_COMMIT_SHA}-cms
@@ -77,65 +77,6 @@ steps:
         - clone
 
   - <<: *deploySafe
-    name: cs-dev
-  - <<: *deploySafe
-    name: cs-qa
- # - <<: *deploySafe # in definition ^
- #   name: cs-demo
-  - <<: *deploySafe
-    name: wcs-dev
-  - <<: *deploySafe
-    name: wcs-qa
-  - <<: *deploySafe
-    name: wcs-demo
-  - <<: *deployDangerous
-    name: hocs-delta
-  - <<: *deployDangerous
-    name: hocs-gamma
-  - <<: *deployDangerous
-    name: hocs-epsilon
- #- <<: *deployDangerous # in definition ^
- #  name: hocs-qax
----
-
-# we're doing this as a promote so one can manually run it
-# normally this is defined in hocs-data's .drone.yml
-
-kind: pipeline
-type: kubernetes
-name: teardown
-
-trigger:
-  event:
-    - promote
-
-steps:
-  - name: teardown gamma
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
-    commands:
-      - cd kube
-      - bash ./teardown.sh
-    environment:
-      ENVIRONMENT: hocs-gamma
-      KUBE_TOKEN:
-        from_secret: hocs_toolbox_hocs_gamma
-    when:
-      target:
-        - teardown
-        - teardown-gamma
-
-  - name: teardown delta
-    image: quay.io/ukhomeofficedigital/kd:v1.16.0
-    commands:
-      - cd kube
-      - bash ./teardown.sh
-    environment:
-      ENVIRONMENT: hocs-delta
-      KUBE_TOKEN:
-        from_secret: hocs_toolbox_hocs_delta
-    when:
-      target:
-        - teardown
-        - teardown-delta
-
+    name: cs-dev-migration
+    
 ...
