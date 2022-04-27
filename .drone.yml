@@ -75,5 +75,5 @@ steps:
         - clone
 
   - <<: *deploySafe
-    name: cs-dev-migration
+    name: cs-dev-migration-test
 ...
