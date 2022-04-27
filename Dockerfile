@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.14 AS base
 
 ENV USER hocs
 ENV USER_ID 1000
@@ -62,6 +62,7 @@ ENV PATH=$PATH:/opt/mssql-tools/bin
 
 RUN rm -f msodbcsql*.sig mssql-tools*.apk
 
-COPY LaganECM_schema.sql /app/
-
 USER ${USER_ID}
+
+FROM base AS safe
+COPY LaganECM_schema.sql /app/
