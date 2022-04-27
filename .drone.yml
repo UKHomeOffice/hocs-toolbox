@@ -14,7 +14,7 @@ steps:
     - shellcheck *.sh */*.sh */*/*.sh
   depends_on:
     - clone
-
+    
 ---
 kind: pipeline
 type: kubernetes
@@ -63,7 +63,7 @@ trigger:
     - push
 
 steps:
-  - &deploySafe
+  - deploySafe
       name: cs-dev-migration
       image: quay.io/ukhomeofficedigital/kd
       environment:
@@ -75,8 +75,4 @@ steps:
         - ./deploy.sh
       depends_on:
         - clone
-
-  - <<: *deploySafe
-    name: cs-dev-migration
-    
 ...
