@@ -40,9 +40,7 @@ steps:
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
       target: safe
       tags:
-        - build_${DRONE_BUILD_NUMBER}
-        - ${DRONE_COMMIT_SHA}-cms
-        - cms
+        - ${DRONE_COMMIT_SHA}-cms-migration
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
@@ -67,7 +65,7 @@ steps:
       name: cs-dev-migration
       image: quay.io/ukhomeofficedigital/kd
       environment:
-        VERSION: ${DRONE_COMMIT_SHA}-cms
+        VERSION: ${DRONE_COMMIT_SHA}-cms-migration
         KUBE_TOKEN:
           from_secret: KUBE_TOKEN_SAFE
       commands:

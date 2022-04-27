@@ -14,7 +14,7 @@ spec:
   template:
     metadata:
       labels:
-        name: hocs-toolbox
+        name: hocs-migration-toolbox
         version: {{.VERSION}}
         role: hocs-cms-migration
     spec:
