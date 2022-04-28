@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hocs-toolbox
+  name: hocs-migration-toolbox
   labels:
     version: {{.VERSION}}
   annotations:
@@ -10,7 +10,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      name: hocs-toolbox
+      name: hocs-migration-toolbox
   template:
     metadata:
       labels:
@@ -30,6 +30,8 @@ spec:
               drop:
                - SETUID
                - SETGID
+          command: [ "sleep" ]
+          args: [ "infinity" ]
           env:
             - name: MODE
               value: "query"
@@ -50,12 +52,12 @@ spec:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-mssql
                   key: default_db
-            - name: CMS_USERNAME
+            - name: CMS_DB_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-mssql
                   key: username
-            - name: CMS_PASSWORD
+            - name: CMS_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-mssql
