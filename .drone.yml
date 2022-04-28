@@ -61,19 +61,15 @@ trigger:
     - push
 
 steps:
-  - &deploySafe
-      name: cs-dev-migration
-      image: quay.io/ukhomeofficedigital/kd
-      environment:
-        VERSION: ${DRONE_COMMIT_SHA}-cms-migration
-        KUBE_TOKEN:
-          from_secret: KUBE_TOKEN_SAFE
-      commands:
-        - cd kube
-        - ./deploy.sh
-      depends_on:
-        - clone
-
-  - <<: *deploySafe
-    name: cs-dev-migration-test
+  - name: cs-dev-migration
+    image: quay.io/ukhomeofficedigital/kd
+    environment:
+      VERSION: ${DRONE_COMMIT_SHA}-cms-migration
+      KUBE_TOKEN:
+        from_secret: KUBE_TOKEN_SAFE
+    commands:
+      - cd kube
+      - ./deploy.sh
+    depends_on:
+      - clone
 ...
