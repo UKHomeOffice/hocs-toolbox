@@ -1,4 +1,4 @@
-FROM alpine:3.14 AS base
+FROM alpine:3.14
 
 ENV USER hocs
 ENV USER_ID 1000
@@ -22,6 +22,7 @@ RUN chmod a+x /app/run.sh
 RUN apk --no-cache update && \
     apk add --update --no-cache curl py-pip && \
     apk --no-cache add py-setuptools ca-certificates groff less && \
+    apk --no-cache add curl gnupg && \
     pip --no-cache-dir install awscli==${AWS_CLI_VERSION} && \
     rm -rf /var/cache/apk/*
 
@@ -30,14 +31,6 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
     -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
     && chmod +x ./kubectl \
     && mv ./kubectl /usr/local/bin
-
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
-    -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-RUN chmod +x ./kubectl
-RUN mv ./kubectl /usr/local/bin
-
-# Install dependencies
-RUN apk --no-cache add curl gnupg
 
 # Download the desired package(s)
 RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk
@@ -63,6 +56,4 @@ ENV PATH=$PATH:/opt/mssql-tools/bin
 RUN rm -f msodbcsql*.sig mssql-tools*.apk
 
 USER ${USER_ID}
-
-FROM base AS safe
-COPY LaganECM_schema.sql /app/
+ENTRYPOINT ["tail", "-f", "/dev/null"]
