@@ -62,15 +62,20 @@ spec:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-mssql
                   key: password
-            - name: S3_REGION
+            - name: AWS_DEFAULT_REGION
               value: 'eu-west-2'
             - name: S3_CMS_BUCKET
               value: {{.KUBE_NAMESPACE}}-s3
-            - name: S3_CMS_ACCESS_KEY
+            - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-s3
                   key: iam_access_key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-s3
+                  key: iam_secret_key
           resources:
             limits:
               cpu: 100m
