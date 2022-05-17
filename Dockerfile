@@ -47,13 +47,13 @@ RUN gpg --verify mssql-tools_17.6.1.1-1_amd64.sig mssql-tools_17.6.1.1-1_amd64.a
 
 
 # Install the package(s)
-RUN apk add --allow-untrusted msodbcsql17_17.6.1.1-1_amd64.apk
-RUN apk add --allow-untrusted mssql-tools_17.6.1.1-1_amd64.apk
+RUN apk add --allow-untrusted msodbcsql17_17.6.1.1-1_amd64.apk mssql-tools_17.6.1.1-1_amd64.apk
 
 # Adding SQL Server tools to $PATH
 ENV PATH=$PATH:/opt/mssql-tools/bin
 
-RUN rm -f msodbcsql*.sig mssql-tools*.apk
+RUN rm -f msodbcsql*.sig msodbcsql*.apk mssql-tools*.sig mssql-tools*.apk
+
 
 USER ${USER_ID}
 
