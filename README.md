@@ -58,7 +58,7 @@ GO
 Create Lagan user
 
 ```
-CREATE LOGIN Lagan_admin WITH PASSWORD = 'Lagan_admin'
+CREATE LOGIN Lagan_admin WITH PASSWORD = $CMS_LAGAN_ADMIN
 GO
 Exit 
 ```
