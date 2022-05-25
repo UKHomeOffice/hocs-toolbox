@@ -62,7 +62,9 @@ CREATE LOGIN Lagan_admin WITH PASSWORD = 'Lagan_admin'
 GO
 Exit 
 ```
-
+Upload the database schema from your local machine:
+```console
+$ kubectl cp deployment/hocs-toolbox LaganECM_schema.sql:.
 Now we can load schema from the container bash
 
 ```
