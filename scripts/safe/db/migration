@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+sqlcmd -S $CMS_DB_HOSTNAME -U $CMS_DB_USERNAME -P $CMS_DB_PASSWORD
+
+tail -f /dev/null
