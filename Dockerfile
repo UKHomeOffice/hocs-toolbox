@@ -53,4 +53,5 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
 ENV PATH=$PATH:/opt/mssql-tools/bin
 USER ${USER_ID}
 COPY scripts/safe/*.sh /app/scripts/
+COPY scripts/safe/db/migration /app/scripts/
 CMD /app/run.sh
