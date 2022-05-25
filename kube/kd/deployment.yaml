@@ -62,6 +62,16 @@ spec:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-mssql
                   key: password
+            - name: CMS_LAGAN_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-mssql
+                  key: cms_lagan_admin_username
+            - name: CMS_LAGAN_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-mssql
+                  key: cms_lagan_admin_password
             - name: AWS_DEFAULT_REGION
               value: 'eu-west-2'
             - name: S3_CMS_BUCKET
