@@ -25,6 +25,8 @@ platform:
   arch: amd64
 
 trigger:
+  branch:
+    - cms-data-migration
   event:
     - push
 
