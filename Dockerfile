@@ -20,9 +20,7 @@ COPY run.sh /app/
 RUN chmod a+x /app/run.sh
 
 RUN apk --no-cache update &&\
-    apk add --update --no-cache curl py-pip &&\
-    apk --no-cache add py-setuptools ca-certificates groff less &&\
-    apk --no-cache add curl gnupg &&\
+    apk add --update --no-cache curl py-pip gnupg py-setuptools ca-certificates groff less &&\
     pip --no-cache-dir install awscli==${AWS_CLI_VERSION} &&\
     rm -rf /var/cache/apk/*
 
