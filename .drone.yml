@@ -14,7 +14,7 @@ steps:
     - shellcheck *.sh */*.sh */*/*.sh
   depends_on:
     - clone
-    
+
 ---
 kind: pipeline
 type: kubernetes
@@ -44,7 +44,7 @@ steps:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-
+      
 ---
 kind: pipeline
 type: kubernetes
