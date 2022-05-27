@@ -38,12 +38,6 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
     && mv ./kubectl /usr/local/bin
 
 USER ${USER_ID}
-CMD /app/run.sh
 
-FROM base AS safe
-COPY scripts/safe/ /app/scripts/
-RUN echo "SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;" >> ~/.pgsqlrc
-
-FROM base AS dangerous
-COPY scripts/safe/ /app/scripts/
-COPY scripts/dangerous/ /app/scripts/
+COPY scripts/safe/ /app/scripts/safe/
+COPY scripts/dangerous/ /app/scripts/dangerous/
