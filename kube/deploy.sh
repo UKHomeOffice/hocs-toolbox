@@ -6,6 +6,8 @@ export VERSION=${VERSION:-latest}
 export KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
 export KUBE_CERTIFICATE_AUTHORITY="https://raw.githubusercontent.com/UKHomeOffice/acp-ca/master/acp-notprod.crt"
 
+export DATABASES="audit,info,docs,workflow"
+
 echo
 echo "Deploying to ${KUBE_NAMESPACE}"
 echo "Version: ${VERSION}"

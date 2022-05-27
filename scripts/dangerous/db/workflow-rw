@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-export PGUSER=${WORKFLOW_DB_RO_USERNAME}
-export PGPASSWORD=${WORKFLOW_DB_RO_PASSWORD}
+export PGUSER=${WORKFLOW_DB_USERNAME}
+export PGPASSWORD=${WORKFLOW_DB_PASSWORD}
 export PGDATABASE=${WORKFLOW_DB_SCHEMA_NAME}
 export PGHOST=${WORKFLOW_DB_HOST}
 export PGPORT=${WORKFLOW_DB_PORT}
+
+echo 'Using read-write credentials!'
 
 psql
 

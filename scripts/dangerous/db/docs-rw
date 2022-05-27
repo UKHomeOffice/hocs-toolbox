@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-export PGUSER=${DOCS_DB_RO_USERNAME}
-export PGPASSWORD=${DOCS_DB_RO_PASSWORD}
+export PGUSER=${DOCS_DB_USERNAME}
+export PGPASSWORD=${DOCS_DB_PASSWORD}
 export PGDATABASE=${DOCS_DB_SCHEMA_NAME}
 export PGHOST=${DOCS_DB_HOST}
 export PGPORT=${DOCS_DB_PORT}
+
+echo 'Using read-write credentials!'
 
 psql
 
