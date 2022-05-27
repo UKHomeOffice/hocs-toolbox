@@ -63,7 +63,7 @@ trigger:
 
 steps:
   - &deploy
-      name: cs-demo
+      name: cs-dev
       image: quay.io/ukhomeofficedigital/kd
       environment:
         VERSION: ${DRONE_COMMIT_SHA}
@@ -76,11 +76,9 @@ steps:
         - clone
 
   - <<: *deploy
-    name: cs-dev
-  - <<: *deploy
     name: cs-qa
- # - <<: *deploy # in definition ^
- #   name: cs-demo
+  - <<: *deploy
+    name: cs-demo
   - <<: *deploy
     name: wcs-dev
   - <<: *deploy
