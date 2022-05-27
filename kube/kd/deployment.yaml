@@ -42,41 +42,49 @@ spec:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: host
+                  optional: true
             - name: {{upper .}}_DB_PORT
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: port
+                  optional: true
             - name: {{upper .}}_DB_NAME
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: name
+                  optional: true
             - name: {{upper .}}_DB_SCHEMA_NAME
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: schema_name
+                  optional: true
             - name: {{upper .}}_DB_RO_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: read_only_user_name
+                  optional: true
             - name: {{upper .}}__DB_RO_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: read_only_password
+                  optional: true
             - name: {{upper .}}_DB_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: user_name
+                  optional: true
             - name: {{upper .}}_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: password
+                  optional: true
             {{end}}
 
             - name: ELASTICSEARCH_ACCESS_KEY
