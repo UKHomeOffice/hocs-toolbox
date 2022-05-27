@@ -2,9 +2,8 @@
 
 export PGUSER=${AUDIT_DB_USERNAME}
 export PGPASSWORD=${AUDIT_DB_PASSWORD}
-export PGDATABASE=${AUDIT_DB_SCHEMA_NAME}
+export PGDATABASE=${AUDIT_DB_NAME}
 export PGHOST=${AUDIT_DB_HOST}
-export PGPORT=${AUDIT_DB_PORT}
 
 echo 'Using read-write credentials!'
 

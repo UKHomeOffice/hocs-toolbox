@@ -2,9 +2,8 @@
 
 export PGUSER=${INFO_DB_USERNAME}
 export PGPASSWORD=${INFO_DB_PASSWORD}
-export PGDATABASE=${INFO_DB_SCHEMA_NAME}
+export PGDATABASE=${INFO_DB_NAME}
 export PGHOST=${INFO_DB_HOST}
-export PGPORT=${INFO_DB_PORT}
 
 echo 'Using read-write credentials!'
 
