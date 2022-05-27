@@ -11,7 +11,7 @@ steps:
 - name: lint bash
   image: koalaman/shellcheck-alpine
   commands:
-    - shellcheck *.sh */*.sh */*/*.sh
+    - shellcheck */*/*.sh
   depends_on:
     - clone
 
