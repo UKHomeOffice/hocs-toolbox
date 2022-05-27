@@ -1,74 +1,112 @@
 ---
 kind: pipeline
 type: kubernetes
-name: lint
-
-trigger:
-  event:
-    - push
-
-steps:
-- name: lint bash
-  image: koalaman/shellcheck-alpine
-  commands:
-    - shellcheck */*/*.sh
-  depends_on:
-    - clone
-
----
-kind: pipeline
-type: kubernetes
 name: build
-
-platform:
-  os: linux
-  arch: amd64
-
 trigger:
-  branch:
-    - main
   event:
     - push
+  branch:
+    exclude:
+      - main
 
 steps:
-  - name: build & push safe
+  - name: build & push
     image: plugins/docker
-    depends_on:
-      - clone
     settings:
       registry: quay.io
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
       tags:
-        - build_${DRONE_BUILD_NUMBER}
+        - ${DRONE_COMMIT_SHA}
+    environment:
+      DOCKER_PASSWORD:
+        from_secret: QUAY_ROBOT_TOKEN
+      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    depends_on:
+      - clone
+
+---
+kind: pipeline
+type: kubernetes
+name: deploy
+trigger:
+  event:
+    - promote
+
+steps:
+  - name: fetch and checkout
+    image: alpine/git
+    commands:
+      - git fetch --tags
+      - git checkout $${VERSION}
+
+  - name: deploy to prod
+    image: quay.io/ukhomeofficedigital/kd
+    commands:
+      - cd kube
+      - ./deploy.sh
+    environment:
+      ENVIRONMENT: ${DRONE_DEPLOY_TO}
+      KUBE_TOKEN:
+        from_secret: hocs_toolbox_${DRONE_DEPLOY_TO/-/_}
+      KUBE_SERVER: https://kube-api-prod.prod.acp.homeoffice.gov.uk
+    depends_on:
+      - fetch and checkout
+    when:
+      target:
+        include:
+          - "*-prod"
+
+---
+kind: pipeline
+type: kubernetes
+name: build tag
+trigger:
+  event:
+    - tag
+  branch:
+    - main
+
+steps:
+
+  - name: build & push tag main
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/ukhomeofficedigital/hocs-toolbox
+      tags:
+        - ${DRONE_TAG}
         - ${DRONE_COMMIT_SHA}
         - latest
     environment:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
+    depends_on:
+      - test project
+    when:
+      branch:
+        - main
 
 ---
-
 kind: pipeline
 type: kubernetes
-name: deploy
-depends_on:
-  - build
-
+name: deploy tag
 trigger:
+  event:
+    - tag
   branch:
     - main
-  event:
-    - push
+depends_on:
+  - build tag
 
 steps:
   - &deploy
       name: cs-dev
       image: quay.io/ukhomeofficedigital/kd
       environment:
-        VERSION: ${DRONE_COMMIT_SHA}
+        VERSION: ${DRONE_TAG}
         KUBE_TOKEN:
-          from_secret: KUBE_TOKEN_SAFE
+          from_secret: hocs_toolbox_notprod
       commands:
         - cd kube
         - ./deploy.sh
@@ -93,5 +131,3 @@ steps:
     name: hocs-epsilon
   - <<: *deploy
     name: hocs-qax
-
-...
