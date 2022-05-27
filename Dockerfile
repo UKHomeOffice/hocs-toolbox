@@ -1,6 +1,6 @@
 FROM quay.io/ukhomeofficedigital/hocs-base-image
 
-USER root
+USER 0
 
 RUN apk add --no-cache postgresql-client aws-cli ca-certificates curl
 
