@@ -62,7 +62,7 @@ trigger:
     - push
 
 steps:
-  - &deploySafe
+  - &deploy
       name: cs-demo
       image: quay.io/ukhomeofficedigital/kd
       environment:
@@ -75,25 +75,25 @@ steps:
       depends_on:
         - clone
 
-  - <<: *deploySafe
+  - <<: *deploy
     name: cs-dev
-  - <<: *deploySafe
+  - <<: *deploy
     name: cs-qa
- # - <<: *deploySafe # in definition ^
+ # - <<: *deploy # in definition ^
  #   name: cs-demo
-  - <<: *deploySafe
+  - <<: *deploy
     name: wcs-dev
-  - <<: *deploySafe
+  - <<: *deploy
     name: wcs-qa
-  - <<: *deploySafe
+  - <<: *deploy
     name: wcs-demo
-  - <<: *deploySafe
+  - <<: *deploy
     name: hocs-delta
-  - <<: *deploySafe
+  - <<: *deploy
     name: hocs-gamma
-  - <<: *deploySafe
+  - <<: *deploy
     name: hocs-epsilon
-  - <<: *deploySafe
+  - <<: *deploy
     name: hocs-qax
 
 ...
