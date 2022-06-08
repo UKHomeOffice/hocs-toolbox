@@ -1,6 +1,7 @@
 # hocs-toolbox
 
-This branch is customised for the CMS data migration, it is a toolbox with Microsoft sqlcmd and the AWS CLI installed. It's main purpose is to allow the team to copy the CMS database backup file to an S3 bucket and then restore the database to the SQL Server 2016 database in the cluster.
+This branch is customised for the CMS data migration, it is a toolbox with Microsoft sqlcmd and the AWS CLI installed.
+Its main purpose is to allow the team to copy the CMS database backup file to an S3 bucket and then restore the database to the SQL Server 2016 database in the cluster.
 
 To Access the deployment and work on SQL Server via CLI, please follow the steps
 
