@@ -22,7 +22,7 @@ RUN chmod a+x /app/run.sh
 RUN apk --no-cache update &&\
     apk add --update --no-cache curl py-pip gnupg py-setuptools ca-certificates groff less &&\
     pip --no-cache-dir install awscli==${AWS_CLI_VERSION} &&\
-    rm -rf /var/cache/apk/*
+    rm -rf /var/cache/apk/* &&\
 
 # Download the desired package(s)
     curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk &&\
