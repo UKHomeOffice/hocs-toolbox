@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hocs-toolbox
+  name: hocs-migration-toolbox
   labels:
     version: {{.VERSION}}
   annotations:
@@ -10,18 +10,18 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      name: hocs-toolbox
+      name: hocs-migration-toolbox
   template:
     metadata:
       labels:
-        name: hocs-toolbox
+        name: hocs-migration-toolbox
         version: {{.VERSION}}
-        role: hocs-backend
+        role: hocs-cms-migration
     spec:
       imagePullSecrets:
         - name: registry-credentials
       containers:
-        - name: hocs-toolbox-query
+        - name: hocs-toolbox
           image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
           imagePullPolicy: Always
           securityContext:
@@ -30,189 +30,62 @@ spec:
               drop:
                - SETUID
                - SETGID
+          command: [ "sleep" ]
+          args: [ "infinity" ]
           env:
             - name: MODE
               value: "query"
             - name: KUBE_NAMESPACE
               value: {{.KUBE_NAMESPACE}}
-            - name: HOCS_DB_HOSTNAME
+            - name: CMS_DB_HOSTNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
+                  name: {{.KUBE_NAMESPACE}}-mssql
                   key: endpoint
-            - name: HOCS_DB_PORT
+            - name: CMS_DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
+                  name: {{.KUBE_NAMESPACE}}-mssql
                   key: port
-            - name: HOCS_DB_NAME
+            - name: CMS_DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: db_name
-            - name: HOCS_USERNAME
+                  name: {{.KUBE_NAMESPACE}}-mssql
+                  key: default_db
+            - name: CMS_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
+                  name: {{.KUBE_NAMESPACE}}-mssql
                   key: username
-            - name: HOCS_PASSWORD
+            - name: CMS_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
+                  name: {{.KUBE_NAMESPACE}}-mssql
                   key: password
-            - name: HOCS_INFO_USERNAME
+            - name: CMS_LAGAN_ADMIN_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: info_username
-            - name: HOCS_INFO_PASSWORD
+                  name: {{.KUBE_NAMESPACE}}-lagan
+                  key: username
+            - name: CMS_LAGAN_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds
-                  key: info_password
-            - name: HOCS_DOCS_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-docs
-                  key: rds_user
-            - name: HOCS_DOCS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-docs
-                  key: rds_password
-            - name: HOCS_CASEWORK_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-casework
-                  key: rds_user
-            - name: HOCS_CASEWORK_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-casework
-                  key: rds_password
-            - name: HOCS_WORKFLOW_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-workflow
-                  key: rds_user
-            - name: HOCS_WORKFLOW_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-workflow
-                  key: rds_password
-            - name: HOCS_AUDIT_DB_HOSTNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds-audit
-                  key: endpoint
-            - name: HOCS_AUDIT_DB_NAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-rds-audit
-                  key: db_name
-            - name: HOCS_AUDIT_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-audit
-                  key: rds_user
-            - name: HOCS_AUDIT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: hocs-audit
-                  key: rds_password
-            - name: ELASTICSEARCH_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-elasticsearch
-                  key: access_key_id
-            - name: ELASTICSEARCH_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-elasticsearch
-                  key: secret_access_key
-            - name: SEARCH_QUEUE_NAME
-              value: {{.KUBE_NAMESPACE}}-search-sqs
-            - name: SEARCH_QUEUE_DLQ_NAME
-              value: {{.KUBE_NAMESPACE}}-search-sqs-dlq
-            - name: AWS_SEARCH_SQS_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-search-sqs
-                  key: access_key_id
-            - name: AWS_SEARCH_SQS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-search-sqs
-                  key: secret_access_key
-            - name: DOCUMENT_QUEUE_NAME
-              value: {{.KUBE_NAMESPACE}}-document-sqs
-            - name: DOCUMENT_QUEUE_DLQ_NAME
-              value: {{.KUBE_NAMESPACE}}-document-sqs-dlq
-            - name: AWS_DOCUMENT_SQS_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-document-sqs
-                  key: access_key_id
-            - name: AWS_DOCUMENT_SQS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-document-sqs
-                  key: secret_access_key
-            - name: AUDIT_QUEUE_NAME
-              value: {{.KUBE_NAMESPACE}}-audit-sqs
-            - name: AUDIT_QUEUE_DLQ_NAME
-              value: {{.KUBE_NAMESPACE}}-audit-sqs-dlq
-            - name: AWS_AUDIT_SQS_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-sqs
-                  key: access_key_id
-            - name: AWS_AUDIT_SQS_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-audit-sqs
-                  key: secret_access_key
-            - name: S3_REGION
+                  name: {{.KUBE_NAMESPACE}}-lagan
+                  key: password
+            - name: AWS_DEFAULT_REGION
               value: 'eu-west-2'
-            - name: S3_UNTRUSTED_BUCKET
-              value: {{.KUBE_NAMESPACE}}-untrusted-s3
-            - name: S3_UNTRUSTED_ACCESS_KEY
+            - name: S3_CMS_BUCKET
+              value: {{.KUBE_NAMESPACE}}-s3
+            - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-untrusted-s3
-                  key: access_key_id
-            - name: S3_UNTRUSTED_SECRET_ACCESS_KEY
+                  name: {{.KUBE_NAMESPACE}}-s3
+                  key: iam_access_key
+            - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-untrusted-s3
-                  key: secret_access_key
-            - name: S3_UNTRUSTED_KMS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-untrusted-s3
-                  key: kms_key_id
-            - name: S3_TRUSTED_BUCKET
-              value: {{.KUBE_NAMESPACE}}-trusted-s3
-            - name: S3_TRUSTED_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-trusted-s3
-                  key: access_key_id
-            - name: S3_TRUSTED_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-trusted-s3
-                  key: secret_access_key
-            - name: S3_TRUSTED_KMS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{.KUBE_NAMESPACE}}-trusted-s3
-                  key: kms_key_id
-            - name: AWS_ACCOUNT_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: hocs-queue-config
-                  key: AWS_ACCOUNT_ID
+                  name: {{.KUBE_NAMESPACE}}-s3
+                  key: iam_secret_key
           resources:
             limits:
               cpu: 100m

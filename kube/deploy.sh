@@ -13,5 +13,4 @@ echo
 
 cd kd
 
-kd --timeout 5m0s \
-  -f deployment.yaml
+kd --timeout 5m0s -f deployment.yaml
