@@ -24,12 +24,6 @@ RUN apk --no-cache update &&\
     pip --no-cache-dir install awscli==${AWS_CLI_VERSION} &&\
     rm -rf /var/cache/apk/*
 
-# Installation of kubectl
-RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl \
-    -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl &&\
-    chmod +x ./kubectl && \
-    mv ./kubectl /usr/local/bin && \
-
 # Download the desired package(s)
     curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk &&\
     curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/mssql-tools_17.6.1.1-1_amd64.apk &&\
