@@ -55,7 +55,7 @@ spec:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
                   key: read_only_user_name
                   optional: true
-            - name: {{upper .}}__DB_RO_PASSWORD
+            - name: {{upper .}}_DB_RO_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{$.KUBE_NAMESPACE}}-{{lower .}}-rds
