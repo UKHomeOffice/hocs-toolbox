@@ -27,42 +27,6 @@ steps:
 ---
 kind: pipeline
 type: kubernetes
-name: deploy
-trigger:
-  event:
-    - promote
-
-steps:
-  - name: fetch and checkout
-    image: alpine/git
-    commands:
-      - git fetch --tags
-      - git checkout $${VERSION}
-
-  - &deploy
-    name: cs-prod
-    image: quay.io/ukhomeofficedigital/kd
-    environment:
-      VERSION: ${DRONE_TAG}
-      KUBE_TOKEN:
-        from_secret: hocs_toolbox_prod
-    commands:
-      - cd kube
-      - ./deploy.sh
-    depends_on:
-      - fetch and checkout
-    when:
-      target:
-        include:
-          - "*-prod"
-
-  - <<: *deploy
-    name: wcs-prod
-
-
----
-kind: pipeline
-type: kubernetes
 name: build tag
 trigger:
   event:
@@ -107,7 +71,7 @@ steps:
       environment:
         VERSION: ${DRONE_TAG}
         KUBE_TOKEN:
-          from_secret: hocs_toolbox_notprod
+          from_secret: hocs_toolbox
       commands:
         - cd kube
         - ./deploy.sh
@@ -132,3 +96,7 @@ steps:
     name: hocs-epsilon
   - <<: *deploy
     name: hocs-qax
+  - <<: *deploy
+    name: cs-prod
+  - <<: *deploy
+    name: wcs-prod
