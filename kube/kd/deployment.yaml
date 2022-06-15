@@ -5,7 +5,7 @@ metadata:
   labels:
     version: {{.VERSION}}
   annotations:
-    downscaler/downscale-period: 'Mon-Fri 18:00-08:00 Europe/London'
+    downscaler/uptime: {{.UPTIME_PERIOD}}
 spec:
   replicas: 1
   selector:
@@ -23,7 +23,6 @@ spec:
       containers:
         - name: hocs-toolbox-query
           image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
-          imagePullPolicy: Always
           securityContext:
             runAsNonRoot: true
             capabilities:
@@ -171,7 +170,7 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 100Mi
+              memory: 150Mi
             requests:
               cpu: 100m
-              memory: 50Mi
+              memory: 150Mi
