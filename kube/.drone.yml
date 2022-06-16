@@ -1,7 +1,7 @@
 ---
 kind: pipeline
 type: kubernetes
-name: validate k8
+name: validate k8s
 trigger:
   event:
     - push
