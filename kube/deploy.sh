@@ -7,12 +7,12 @@ export VERSION=${VERSION}
 
 if [[ ${KUBE_NAMESPACE} == *prod ]]
 then
-    export UPTIME_PERIOD="Mon-Sun 05:00-23:00 Europe/London"
+    export DOWNSCALE_PERIOD="Mon-Sun 23:00-05:00 Europe/London"
 
     export CLUSTER_NAME="acp-prod"
     export KUBE_SERVER=https://kube-api-prod.prod.acp.homeoffice.gov.uk
 else
-    export UPTIME_PERIOD="Mon-Fri 08:00-18:00 Europe/London"
+    export DOWNSCALE_PERIOD="Mon-Fri 18:00-08:00 Europe/London"
 
     export CLUSTER_NAME="acp-notprod"
     export KUBE_SERVER=https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
