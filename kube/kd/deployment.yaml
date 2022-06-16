@@ -5,7 +5,7 @@ metadata:
   labels:
     version: {{.VERSION}}
   annotations:
-    downscaler/uptime: {{.UPTIME_PERIOD}}
+    downscaler/downscale-period: {{.DOWNSCALE_PERIOD}}
 spec:
   replicas: 1
   selector:
