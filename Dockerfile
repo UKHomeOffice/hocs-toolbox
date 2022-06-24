@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3
 
 ENV USER hocs
 ENV USER_ID 1000
@@ -17,10 +17,8 @@ RUN addgroup ${GROUP} &&\
 COPY run.sh /app/
 RUN chmod a+x /app/run.sh
 
-RUN apk upgrade &&\
-    apk --no-cache update &&\
-    apk add bash &&\
-    apk add --update --no-cache curl py-pip gnupg py-setuptools ca-certificates groff less &&\
+RUN apk add bash &&\
+    apk add --no-cache curl py-pip gnupg py-setuptools ca-certificates groff less &&\
     pip --no-cache-dir install awscli==${AWS_CLI_VERSION} &&\
     rm -rf /var/cache/apk/* &&\
 
