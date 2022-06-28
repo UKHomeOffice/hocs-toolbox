@@ -1,26 +1,10 @@
-FROM alpine:3
+FROM quay.io/ukhomeofficedigital/hocs-base-image
 
-ENV USER hocs
-ENV USER_ID 1000
-ENV GROUP hocs
-ENV NAME hocs-migration-toolbox
-ENV AWS_CLI_VERSION 1.16.207
+USER 0
 
-WORKDIR /app
+RUN apk add --no-cache aws-cli bash ca-certificates curl gnupg
 
-RUN addgroup ${GROUP} &&\
-    adduser -u ${USER_ID} -G ${GROUP} -h /app -D ${USER} &&\
-    mkdir -p /app/scripts &&\
-    chown -R ${USER}:${GROUP} /app &&\
-    mkdir -p /app/scripts
-
-COPY run.sh /app/
-RUN chmod a+x /app/run.sh
-
-RUN apk add bash &&\
-    apk add --no-cache curl py-pip gnupg py-setuptools ca-certificates groff less &&\
-    pip --no-cache-dir install awscli==${AWS_CLI_VERSION} &&\
-    rm -rf /var/cache/apk/*
+USER 10000
 
 RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/msodbcsql17_17.6.1.1-1_amd64.apk &&\
     curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac7-8d28ddafb39b/mssql-tools_17.6.1.1-1_amd64.apk &&\
@@ -34,7 +18,8 @@ RUN curl -O https://download.microsoft.com/download/e/4/e/e4e67866-dffd-428c-aac
 
 # Adding SQL Server tools to $PATH
 ENV PATH=$PATH:/opt/mssql-tools/bin
-USER ${USER_ID}
-COPY scripts/safe/*.sh /app/scripts/
-COPY scripts/safe/db/migration /app/scripts/db/
-CMD /app/run.sh
+
+COPY --chown=user_hocs:group_hocs ./scripts ./
+COPY --chown=user_hocs:group_hocs run.sh ./
+
+CMD ["sh", "/app/run.sh"]
