@@ -74,6 +74,10 @@ spec:
             - name: AWS_DEFAULT_REGION
               value: 'eu-west-2'
             - name: S3_CMS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-s3
+                  key: s3_bucket_name
               value: {{.KUBE_NAMESPACE}}-s3
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
