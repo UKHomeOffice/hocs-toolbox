@@ -1,40 +1,16 @@
 ---
 kind: pipeline
 type: kubernetes
-name: lint
-
+name: build
 trigger:
   event:
     - push
-
-steps:
-- name: lint bash
-  image: koalaman/shellcheck-alpine
-  commands:
-    - shellcheck *.sh */*.sh */*/*.sh
-  depends_on:
-    - clone
-
----
-kind: pipeline
-type: kubernetes
-name: build
-
-platform:
-  os: linux
-  arch: amd64
-
-trigger:
   branch:
     - cms-data-migration
-  event:
-    - push
 
 steps:
   - name: build & push
     image: plugins/docker
-    depends_on:
-      - clone
     settings:
       registry: quay.io
       repo: quay.io/ukhomeofficedigital/hocs-toolbox
@@ -44,19 +20,50 @@ steps:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-      
+    depends_on:
+      - clone
+
 ---
 kind: pipeline
 type: kubernetes
 name: deploy
-depends_on:
-  - build
-
 trigger:
-  branch:
-    - cms-data-migration
+  event:
+    - promote
+
+steps:
+  - name: fetch and checkout
+    image: alpine/git
+    commands:
+      - git fetch --tags
+      - git checkout $${VERSION}
+
+  - &deploy
+    name: cs-prod-migration
+    image: quay.io/ukhomeofficedigital/kd
+    environment:
+      VERSION: ${DRONE_TAG}
+      KUBE_TOKEN:
+        from_secret: decs_prod_token
+    commands:
+      - cd kube
+      - ./deploy.sh
+    depends_on:
+      - fetch and checkout
+    when:
+      target:
+        include:
+          - "*-prod-*"
+
+---
+kind: pipeline
+type: kubernetes
+name: build tag
+trigger:
   event:
     - push
+  branch:
+    - cms-data-migration
 
 steps:
   - name: cs-dev-migration
@@ -70,4 +77,5 @@ steps:
       - ./deploy.sh
     depends_on:
       - clone
+
 ...

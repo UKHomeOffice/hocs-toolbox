@@ -5,7 +5,7 @@ metadata:
   labels:
     version: {{.VERSION}}
   annotations:
-    downscaler/downscale-period: 'Mon-Fri 18:00-08:00 Europe/London'
+    downscaler/downscale-period: {{.DOWNSCALE_PERIOD}}
 spec:
   replicas: 1
   selector:
@@ -23,7 +23,6 @@ spec:
       containers:
         - name: hocs-toolbox
           image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
-          imagePullPolicy: Always
           securityContext:
             runAsNonRoot: true
             capabilities:
@@ -75,6 +74,10 @@ spec:
             - name: AWS_DEFAULT_REGION
               value: 'eu-west-2'
             - name: S3_CMS_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: {{.KUBE_NAMESPACE}}-s3
+                  key: s3_bucket_name
               value: {{.KUBE_NAMESPACE}}-s3
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
@@ -89,7 +92,7 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 100Mi
+              memory: 150Mi
             requests:
               cpu: 100m
-              memory: 50Mi
+              memory: 150Mi
