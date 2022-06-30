@@ -44,7 +44,7 @@ steps:
       DOCKER_PASSWORD:
         from_secret: QUAY_ROBOT_TOKEN
       DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-      
+
 ---
 kind: pipeline
 type: kubernetes
@@ -64,10 +64,23 @@ steps:
     environment:
       VERSION: ${DRONE_COMMIT_SHA}-cms-migration
       KUBE_TOKEN:
-        from_secret: KUBE_TOKEN_SAFE
+        # this token only allows deploy to CMS migration namespaces:
+        from_secret: CMS_MIGRATION_NOTPROD_TOKEN
     commands:
       - cd kube
       - ./deploy.sh
     depends_on:
       - clone
+
+  - name: cs-prod-migration
+    image: quay.io/ukhomeofficedigital/kd
+    environment:
+      VERSION: ${DRONE_COMMIT_SHA}-cms-migration
+      KUBE_TOKEN:
+        from_secret: CMS_MIGRATION_PROD_TOKEN
+    commands:
+      - cd kube
+      - ./deploy.sh
+    depends_on:
+      - cs-dev-migration
 ...
