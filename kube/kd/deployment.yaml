@@ -78,7 +78,6 @@ spec:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-s3
                   key: s3_bucket_name
-              value: {{.KUBE_NAMESPACE}}-s3
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
