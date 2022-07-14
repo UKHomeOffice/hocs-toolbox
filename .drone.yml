@@ -1,32 +1,6 @@
 ---
 kind: pipeline
 type: kubernetes
-name: build
-trigger:
-  event:
-    - push
-  branch:
-    exclude:
-      - main
-
-steps:
-  - name: build & push
-    image: plugins/docker
-    settings:
-      registry: quay.io
-      repo: quay.io/ukhomeofficedigital/hocs-toolbox
-      tags:
-        - ${DRONE_COMMIT_SHA}
-    environment:
-      DOCKER_PASSWORD:
-        from_secret: QUAY_ROBOT_TOKEN
-      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-    depends_on:
-      - clone
-
----
-kind: pipeline
-type: kubernetes
 name: deploy
 trigger:
   event:
@@ -63,40 +37,12 @@ steps:
 ---
 kind: pipeline
 type: kubernetes
-name: build tag
-trigger:
-  event:
-    - tag
-  branch:
-    - main
-
-steps:
-
-  - name: build & push tag main
-    image: plugins/docker
-    settings:
-      registry: quay.io
-      repo: quay.io/ukhomeofficedigital/hocs-toolbox
-      tags:
-        - ${DRONE_TAG}
-        - ${DRONE_COMMIT_SHA}
-        - latest
-    environment:
-      DOCKER_PASSWORD:
-        from_secret: QUAY_ROBOT_TOKEN
-      DOCKER_USERNAME: ukhomeofficedigital+hocs_quay_robot
-
----
-kind: pipeline
-type: kubernetes
 name: deploy tag
 trigger:
   event:
     - tag
   branch:
     - main
-depends_on:
-  - build tag
 
 steps:
   - &deploy
