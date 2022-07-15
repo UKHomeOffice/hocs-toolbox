@@ -5,6 +5,4 @@ export PGPASSWORD=${DOCS_DB_RO_PASSWORD}
 export PGDATABASE=${DOCS_DB_NAME}
 export PGHOST=${DOCS_DB_HOST}
 
-psql
-
-tail -f /dev/null
+psql $@ <&0
