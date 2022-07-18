@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+export PGUSER=${EXTRACTS_DB_RO_USERNAME}
+export PGPASSWORD=${EXTRACTS_DB_RO_PASSWORD}
+export PGDATABASE=${EXTRACTS_DB_NAME}
+export PGHOST=${EXTRACTS_DB_HOST}
+
+psql $@ <&0
