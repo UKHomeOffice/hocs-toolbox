@@ -20,7 +20,7 @@ fi
 
 export KUBE_CERTIFICATE_AUTHORITY="https://raw.githubusercontent.com/UKHomeOffice/acp-ca/master/${CLUSTER_NAME}.crt"
 
-export DATABASES="audit,info,docs,workflow,casework"
+export DATABASES="audit,info,docs,workflow,casework,extracts"
 
 echo
 echo "Deploying to ${KUBE_NAMESPACE}"
