@@ -1,3 +1,3 @@
 # hocs-toolbox
 
-This image contains the abilities to access the namespace database, and also provides scripts for clearing the database, Elasticsearch, S3 buckets and SQS queues.
+This image contains tools to interact with an environment's databases and AWS resources.
