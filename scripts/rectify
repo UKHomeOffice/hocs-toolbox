@@ -1,0 +1,80 @@
+#!/bin/bash
+
+if [ -z "$1" ] ; then
+  echo 'Error: no case reference specified'
+  echo "Usage: $0 <case reference>"
+  echo "       e.g. $0 ABC/123456789/10"
+  exit 64 # EX_USAGE
+fi
+
+if [[ "$HOME" != $(pwd) ]] ; then
+  echo >&2 "[error] Run this script from the home directory"
+  echo >&2 "[error] Suggestion: run \`cd\` and then try again"
+  exit 64
+fi
+
+REFERENCE=$1
+
+CASE_UUID=$(echo "SELECT uuid from case_data WHERE reference='$REFERENCE'" | db/casework -tAq)
+
+# Echo the usual queries to stdout before trying to do magic:
+
+echo "SELECT cd.uuid,s.uuid,s.type,s.team_uuid
+FROM case_data cd INNER JOIN stage s ON cd.uuid=s.case_uuid
+WHERE cd.uuid='$CASE_UUID'" | db/casework
+
+echo "SELECT arecd.business_key_, are1.act_id_, are2.proc_def_id_  FROM
+act_ru_execution arecd INNER JOIN act_ru_execution are1 on arecd.id_ =
+are1.parent_id_ INNER JOIN act_ru_execution are2 on are1.id_ =
+are2.super_exec_ where arecd.business_key_ = '$CASE_UUID'" | db/workflow
+
+echo "SELECT audit_payload->>'allocatedToUUID', audit_payload->>'stage' FROM audit_event
+WHERE type='STAGE_ALLOCATED_TO_TEAM' AND case_uuid='$CASE_UUID'
+ORDER BY audit_timestamp DESC;" | db/audit
+
+# Now try and be clever:
+
+QUERY="SELECT are2.proc_def_id_ FROM act_ru_execution arecd INNER JOIN act_ru_execution are1 on arecd.id_ =
+are1.parent_id_ INNER JOIN act_ru_execution are2 on are1.id_ =
+are2.super_exec_ where arecd.business_key_ = '$CASE_UUID' AND are1.act_id_ = 'DO_STAGE';"
+
+WORKFLOW_STAGE_STR=$(echo "$QUERY" | db/workflow -tAq)
+WORKFLOW_STAGE_NAME=$(echo "$WORKFLOW_STAGE_STR" | grep -Eo '([A-Z_])\w+')
+
+
+if [ -z "$WORKFLOW_STAGE_NAME" ] ; then # if blank
+  # No stage name in proc_def_id_: usually a strange outcome
+  # but check if it's MPAM Requested Contributions because we know how to fix that:
+  QUERY="SELECT COUNT(are2.proc_def_id_) FROM act_ru_execution arecd INNER JOIN act_ru_execution are1 on arecd.id_ =
+are1.parent_id_ INNER JOIN act_ru_execution are2 on are1.id_ =
+are2.super_exec_ where arecd.business_key_ = '$CASE_UUID' AND are1.act_id_ = 'CallActivity_Triage_Requested_Contribution';"
+  IS_MPAM_REQCONTRIB=$(echo "$QUERY" | db/workflow -tAq)
+  if [ "$IS_MPAM_REQCONTRIB" -eq '1' ] ; then
+    WORKFLOW_STAGE_NAME='MPAM_TRIAGE_REQUESTED_CONTRIBUTION'
+  else
+    echo >&2 "[error] Unable to guess correct stage name"
+    exit 1
+  fi
+fi
+
+QUERY="SELECT s.uuid FROM case_data cd INNER JOIN stage s ON cd.uuid=s.case_uuid WHERE cd.uuid='$CASE_UUID' AND s.team_uuid IS NOT NULL"
+OLD_STAGE_UUID=$(echo "$QUERY" | db/casework -tAq)
+
+QUERY="SELECT s.uuid FROM case_data cd INNER JOIN stage s ON cd.uuid=s.case_uuid WHERE cd.uuid='$CASE_UUID' AND s.type = '$WORKFLOW_STAGE_NAME';"
+NEW_STAGE_UUID=$(echo "$QUERY" | db/casework -tAq)
+
+QUERY="SELECT audit_payload->>'allocatedToUUID' FROM audit_event
+WHERE audit_payload->>'stage'='$WORKFLOW_STAGE_NAME' AND type='STAGE_ALLOCATED_TO_TEAM' AND case_uuid='$CASE_UUID'
+ORDER BY audit_timestamp DESC LIMIT 1;"
+AUDIT_TEAM_UUID=$(echo "$QUERY" | db/audit -tAq)
+
+if [[ "$OLD_STAGE_UUID" == "$NEW_STAGE_UUID" ]] ; then
+  echo >&2 "[error] Old stage and new stage the same! No rectification needed"
+  exit 1
+fi
+
+echo "Recommended casework queries to resolve issue (assuming correct stage is $WORKFLOW_STAGE_NAME):"
+echo "==> Check queries manually before continuing! <=="
+echo
+echo "	UPDATE stage SET team_uuid = NULL, user_uuid = NULL where uuid = '$OLD_STAGE_UUID';"
+echo "	UPDATE stage SET team_uuid = '$AUDIT_TEAM_UUID' WHERE uuid = '$NEW_STAGE_UUID';"
