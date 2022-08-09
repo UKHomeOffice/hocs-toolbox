@@ -69,10 +69,4 @@ steps:
   - <<: *deploy
     name: wcs-demo
   - <<: *deploy
-    name: hocs-delta
-  - <<: *deploy
-    name: hocs-gamma
-  - <<: *deploy
-    name: hocs-epsilon
-  - <<: *deploy
     name: hocs-qax
