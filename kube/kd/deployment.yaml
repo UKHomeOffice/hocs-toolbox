@@ -20,11 +20,18 @@ spec:
     spec:
       imagePullSecrets:
         - name: registry-credentials
+      volumes:
+        - name: cms-data-backup-pv
+          persistentVolumeClaim:
+            claimName: cms-data-backup-pvc
       containers:
         - name: hocs-toolbox
           image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
           securityContext:
             runAsNonRoot: true
+            runAsUser: 10000
+            runAsGroup: 999
+            fsGroup: 999
             capabilities:
               drop:
                - SETUID
@@ -90,6 +97,9 @@ spec:
                 secretKeyRef:
                   name: {{.KUBE_NAMESPACE}}-s3
                   key: iam_secret_key
+          volumeMounts:
+            - mountPath: "/backups"
+              name: cms-data-backup-pv
           resources:
             limits:
               cpu: 100m
