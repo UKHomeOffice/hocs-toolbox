@@ -24,6 +24,11 @@ spec:
         - name: cms-data-backup-pv
           persistentVolumeClaim:
             claimName: cms-data-backup-pvc
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10000
+        runAsGroup: 999
+        fsGroup: 999
       containers:
         - name: hocs-toolbox
           image: quay.io/ukhomeofficedigital/hocs-toolbox:{{.VERSION}}
@@ -31,7 +36,6 @@ spec:
             runAsNonRoot: true
             runAsUser: 10000
             runAsGroup: 999
-            fsGroup: 999
             capabilities:
               drop:
                - SETUID
