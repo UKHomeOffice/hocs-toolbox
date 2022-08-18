@@ -31,7 +31,7 @@ USER hocs
 # Adding SQL Server tools to $PATH
 ENV PATH=$PATH:/opt/mssql-tools/bin
 
-COPY --chown=user_hocs:group_hocs ./scripts ./
-COPY --chown=user_hocs:group_hocs run.sh ./
+COPY --chown=hocs:hocs ./scripts ./
+COPY --chown=hocs:hocs run.sh ./
 
 CMD ["sh", "/app/run.sh"]
