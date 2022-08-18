@@ -2,7 +2,7 @@
 set -euo pipefail # make bash quit if something weird happens
 
 export KUBE_NAMESPACE=${DRONE_STEP_NAME}
-#export KUBE_TOKEN=${KUBE_TOKEN}
+export KUBE_TOKEN=${KUBE_TOKEN}
 export VERSION=${VERSION}
 
 if [[ ${KUBE_NAMESPACE} == *prod* ]]
