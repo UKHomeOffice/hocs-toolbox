@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/hocs-base-image
+FROM alpine:3.16
 
 USER 0
 
