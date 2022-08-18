@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail # make bash quit if something weird happens
 
-export KUBE_NAMESPACE=cs-dev-migration
+export KUBE_NAMESPACE=${DRONE_STEP_NAME}
 #export KUBE_TOKEN=${KUBE_TOKEN}
-export VERSION=1.3.0
+export VERSION=${VERSION}
 
 if [[ ${KUBE_NAMESPACE} == *prod* ]]
 then
