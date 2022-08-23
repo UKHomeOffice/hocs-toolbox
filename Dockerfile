@@ -44,6 +44,4 @@ RUN apk upgrade &&\
 # Adding SQL Server tools to $PATH
 ENV PATH=$PATH:/opt/mssql-tools/bin
 USER ${USER_ID}
-COPY scripts/safe/*.sh /app/scripts/
-COPY scripts/safe/db/migration /app/scripts/db/
 CMD /app/run.sh
