@@ -12,6 +12,5 @@ USER 10000
 WORKDIR /app
 
 COPY --chown=user_hocs:group_hocs ./scripts ./
-COPY --chown=user_hocs:group_hocs run.sh ./
 
-CMD ["sh", "/app/run.sh"]
+ENTRYPOINT tail -f /dev/null
