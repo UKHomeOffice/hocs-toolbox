@@ -1,42 +1,6 @@
 ---
 kind: pipeline
 type: kubernetes
-name: deploy
-trigger:
-  event:
-    - promote
-
-steps:
-  - name: fetch and checkout
-    image: alpine/git
-    commands:
-      - git fetch --tags
-      - git checkout $${VERSION}
-
-  - &deploy
-    name: cs-prod
-    image: quay.io/ukhomeofficedigital/kd
-    environment:
-      VERSION: ${DRONE_TAG}
-      KUBE_TOKEN:
-        from_secret: decs_prod_token
-    commands:
-      - cd kube
-      - ./deploy.sh
-    depends_on:
-      - fetch and checkout
-    when:
-      target:
-        include:
-          - "*-prod"
-
-  - <<: *deploy
-    name: wcs-prod
-
-
----
-kind: pipeline
-type: kubernetes
 name: deploy tag
 trigger:
   event:
@@ -45,28 +9,33 @@ trigger:
     - main
 
 steps:
+  - name: checkout
+    image: quay.io/ukhomeofficedigital/hocs-helm-kubectl:1.0.0
+    commands:
+      - git fetch --tags
+      - git checkout ${DRONE_TAG}
+      - git submodule update --init --recursive
+
   - &deploy
-      name: cs-dev
-      image: quay.io/ukhomeofficedigital/kd
-      environment:
-        VERSION: ${DRONE_TAG}
-        KUBE_TOKEN:
-          from_secret: decs_notprod_token
-      commands:
-        - cd kube
-        - ./deploy.sh
-      depends_on:
-        - clone
+    name: cs-dev
+    image: quay.io/ukhomeofficedigital/hocs-helm-kubectl:1.0.0
+    environment:
+      CHART_NAME: hocs-toolbox
+      CHART_VERSION: 1.0.0
+      KUBE_CLUSTER: acp-notprod
+      KUBE_NAMESPACE: cs-dev
+      KUBE_SERVER: https://kube-api-notprod.notprod.acp.homeoffice.gov.uk
+      KUBE_TOKEN:
+        from_secret: decs_notprod_token
+      VERSION: ${DRONE_TAG}
+    commands:
+      - ./ci/helm/helm-chart-deploy.sh --values ./helm/hocs-toolbox.yaml
+    depends_on:
+      - checkout
 
   - <<: *deploy
-    name: cs-qa
-  - <<: *deploy
-    name: cs-demo
-  - <<: *deploy
     name: wcs-dev
-  - <<: *deploy
-    name: wcs-qa
-  - <<: *deploy
-    name: wcs-demo
-  - <<: *deploy
-    name: hocs-qax
+    environment:
+      KUBE_NAMESPACE: wcs-dev
+    depends_on:
+      - cs-dev
