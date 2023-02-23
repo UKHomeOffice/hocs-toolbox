@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/hocs-base-image
+FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.1
 
 USER 0
 
