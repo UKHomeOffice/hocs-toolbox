@@ -1,0 +1,41 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "⬆️ "
+    pull-request-branch-name:
+      separator: "-"
+    reviewers:
+      - "UKHomeOffice/hocs-core"
+    labels:
+      - "skip-release"
+      - "dependencies"
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "⬆️ "
+    pull-request-branch-name:
+      separator: "-"
+    reviewers:
+      - "UKHomeOffice/hocs-core"
+    labels:
+      - "skip-release"
+      - "dependencies"
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "⬆️ "
+    pull-request-branch-name:
+      separator: "-"
+    reviewers:
+      - "UKHomeOffice/hocs-core"
+    labels:
+      - "patch"
+      - "dependencies"
