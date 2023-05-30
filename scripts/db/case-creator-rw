@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+export PGUSER=${CASE_CREATOR_DB_USERNAME}
+export PGPASSWORD=${CASE_CREATOR_DB_PASSWORD}
+export PGDATABASE=${CASE_CREATOR_DB_NAME}
+export PGHOST=${CASE_CREATOR_DB_HOST}
+
+echo 'Using read-write credentials!'
+
+psql
+
+tail -f /dev/null

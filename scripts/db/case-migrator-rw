@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+export PGUSER=${CASE_MIGRATOR_DB_USERNAME}
+export PGPASSWORD=${CASE_MIGRATOR_DB_PASSWORD}
+export PGDATABASE=${CASE_MIGRATOR_DB_NAME}
+export PGHOST=${CASE_MIGRATOR_DB_HOST}
+
+echo 'Using read-write credentials!'
+
+psql
+
+tail -f /dev/null
