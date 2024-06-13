@@ -7,6 +7,7 @@ RUN apt-get update && \
     apt-get install -y awscli ca-certificates postgresql-client zip jq && \
     apt-get clean
 
+
 USER 10000
 
 WORKDIR /app
