@@ -1,0 +1,51 @@
+#!/bin/bash
+
+if [[ ! "$1" =~ ^[A-Z]+/[0-9]{7}/[0-9]{2}$ ]] ; then
+  echo >&2 "Error: no case reference specified or case reference isn't valid"
+  echo >&2 "Usage: $0 <case reference>"
+  echo >&2 "       e.g. $0 ABC/1234567/10"
+  exit 2
+fi
+
+if [[ "$HOME" != $(pwd) ]] ; then
+  echo >&2 "[error] Run this script from the home directory"
+  echo >&2 "[error] Suggestion: run \`cd\` and then try again"
+  exit 2
+fi
+
+REFERENCE=$1
+
+CASE_UUID=$(echo "SELECT uuid from casework.case_data WHERE reference='$REFERENCE'" | db/casework -tAq)
+if [ ! "$CASE_UUID" ] ; then
+  echo >&2 "[error] Failed to find case with reference $REFERENCE"
+  exit 1;
+fi
+
+echo "Case uuid: ${CASE_UUID:?}"
+
+export HTTPS_PROXY="$S3_HTTPS_PROXY"
+export AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY"
+export AWS_SECRET_ACCESS_KEY="$S3_SECRET_ACCESS_KEY"
+export AWS_DEFAULT_REGION=eu-west-2
+
+DOWNLOAD_DIR="$HOME/$CASE_UUID"
+ENDPOINT_ARG=$([ "$S3_ENDPOINT_URL" ] && echo "--endpoint-url=$S3_ENDPOINT_URL" )
+
+QUERY="SELECT file_link,display_name FROM document.document_data WHERE external_reference_uuid='$CASE_UUID' AND type='Migration document'"
+echo "SELECT row_to_json(row) FROM ($QUERY) row" | db/docs -tAq | while read -r json ; do
+  FILE_LINK=$(echo "$json" | jq -r '.file_link')
+  DISPLAY_NAME=$(echo "$json" | jq -r '.display_name')
+
+  aws "$ENDPOINT_ARG" s3 cp "s3://${S3_BUCKET_NAME:?}/${FILE_LINK:?}" "$DOWNLOAD_DIR/${DISPLAY_NAME:?}"
+done
+
+if [ -d "${DOWNLOAD_DIR:?}" ]; then
+  ZIP_FILE="Official-Sensitive--${REFERENCE//\//-}.zip"
+  zip -r "$ZIP_FILE" "$DOWNLOAD_DIR"
+  echo "$HOME/$ZIP_FILE created"
+
+  rm -rf "${DOWNLOAD_DIR:?}"
+else
+  echo >&2 "[error] Failed to find Migration documents for $REFERENCE"
+  exit 1;
+fi

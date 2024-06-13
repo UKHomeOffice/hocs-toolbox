@@ -1,11 +1,12 @@
-FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.5
+FROM quay.io/ukhomeofficedigital/hocs-base-image:4.1.6
 
 USER 0
 
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y awscli ca-certificates postgresql-client && \
+    apt-get install -y awscli ca-certificates postgresql-client zip jq && \
     apt-get clean
+
 
 USER 10000
 
