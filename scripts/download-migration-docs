@@ -29,14 +29,17 @@ export AWS_SECRET_ACCESS_KEY="$S3_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION=eu-west-2
 
 DOWNLOAD_DIR="$HOME/$CASE_UUID"
-ENDPOINT_ARG=$([ "$S3_ENDPOINT_URL" ] && echo "--endpoint-url=$S3_ENDPOINT_URL" )
 
 QUERY="SELECT file_link,display_name FROM document.document_data WHERE external_reference_uuid='$CASE_UUID' AND type='Migration document'"
 echo "SELECT row_to_json(row) FROM ($QUERY) row" | db/docs -tAq | while read -r json ; do
   FILE_LINK=$(echo "$json" | jq -r '.file_link')
   DISPLAY_NAME=$(echo "$json" | jq -r '.display_name')
 
-  aws "$ENDPOINT_ARG" s3 cp "s3://${S3_BUCKET_NAME:?}/${FILE_LINK:?}" "$DOWNLOAD_DIR/${DISPLAY_NAME:?}"
+  if [ "$S3_ENDPOINT_URL" ] ; then
+    aws --endpoint-url="$S3_ENDPOINT_URL" s3 cp "s3://${S3_BUCKET_NAME:?}/${FILE_LINK:?}" "$DOWNLOAD_DIR/${DISPLAY_NAME:?}"
+  else
+    aws s3 cp "s3://${S3_BUCKET_NAME:?}/${FILE_LINK:?}" "$DOWNLOAD_DIR/${DISPLAY_NAME:?}"
+  fi
 done
 
 if [ -d "${DOWNLOAD_DIR:?}" ]; then
