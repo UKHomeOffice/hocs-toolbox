@@ -5,4 +5,4 @@ export PGPASSWORD=${CASEWORK_DB_RO_PASSWORD}
 export PGDATABASE=${CASEWORK_DB_NAME}
 export PGHOST=${CASEWORK_DB_HOST}
 
-psql $@ <&0
+psql "$@" <&0
