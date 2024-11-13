@@ -5,4 +5,4 @@ export PGPASSWORD=${WORKFLOW_DB_RO_PASSWORD}
 export PGDATABASE=${WORKFLOW_DB_NAME}
 export PGHOST=${WORKFLOW_DB_HOST}
 
-psql $@ <&0
+psql "$@" <&0

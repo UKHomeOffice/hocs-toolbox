@@ -5,4 +5,4 @@ export PGPASSWORD=${AUDIT_DB_RO_PASSWORD}
 export PGDATABASE=${AUDIT_DB_NAME}
 export PGHOST=${AUDIT_DB_HOST}
 
-psql $@ <&0
+psql "$@" <&0
