@@ -13,5 +13,7 @@ USER 10000
 WORKDIR /app
 
 COPY --chown=user_hocs:group_hocs ./scripts ./
+RUN mkdir sql && \
+    curl "https://raw.githubusercontent.com/UKHomeOffice/hocs-audit/refs/heads/main/config/materializedviews/Audit-Schema-DataUpdates.sql" > sql/Audit-Schema-DataUpdates.sql
 
 ENTRYPOINT tail -f /dev/null
